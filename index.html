@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPDD - Sistema Global de Gestión Modular</title>
+    <!-- SUPABASE SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a; --primary-light: #1e293b;
+            --accent: #2563eb; --accent-hover: #1d4ed8;
+            --success: #16a34a; --danger: #dc2626; --warning: #d97706;
+            --bg-main: #f8fafc; --bg-card: #ffffff;
+            --text-main: #334155; --text-dark: #0f172a; --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .top-nav { background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 60px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; flex-shrink: 0; }
+        .top-nav h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0; }
+        .nav-controls { display: flex; align-items: center; gap: 15px; }
+        
+        .tabs-header { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 10px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+        .tabs-header::-webkit-scrollbar { display: none; }
+        .tab-btn { padding: 14px 18px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .tab-btn:hover { color: var(--accent); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #eff6ff; }
+        
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .tab-panel { display: none; animation: fadeIn 0.3s; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .dash-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .dash-card h4 { color: var(--text-main); font-size: 11px; text-transform: uppercase; font-weight: bold; margin-bottom: 8px; }
+        .dash-card .val { font-size: 24px; font-weight: 700; color: var(--text-dark); }
+        
+        .group-header { background: var(--primary-light); color: white; padding: 12px 15px; font-weight: bold; font-size: 14px; border-radius: 6px 6px 0 0; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .table-wrapper { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: auto; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        .data-table th { background: #f8fafc; color: var(--text-dark); font-weight: 600; padding: 12px 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1; }
+        .data-table td { padding: 10px 15px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-main); }
+        .data-table tr:hover { background: #f1f5f9; }
+        
+        /* ESTILOS DE SUB-TABLAS Y 3 PUNTITOS */
+        .inner-table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; margin-top: 5px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .inner-table th { background: #e2e8f0; color: var(--primary); padding: 8px 10px; font-weight: bold; border-bottom: 2px solid #cbd5e1; }
+        .inner-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        .sub-table-title { font-size: 13px; font-weight: bold; color: var(--primary); margin-top: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+        
+        .action-menu { position: relative; display: inline-block; }
+        .menu-dots { background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; padding: 2px 8px; border-radius: 4px; color: var(--text-muted); transition: 0.2s; }
+        .menu-dots:hover { background: #e2e8f0; color: var(--text-dark); }
+        .menu-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 150px; box-shadow: 0 10px 25px -3px rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid var(--border); z-index: 100; overflow: hidden; }
+        .menu-dropdown button { width: 100%; border: none; background: none; padding: 10px 12px; text-align: left; font-size: 12px; cursor: pointer; transition: 0.1s; display: flex; align-items: center; gap: 8px; color: var(--text-main); font-weight: 600; }
+        .menu-dropdown button:hover { background: #f1f5f9; color: var(--accent); }
+        .menu-dropdown button.del-btn { color: var(--danger); }
+        .menu-dropdown button.del-btn:hover { background: #fef2f2; color: var(--danger); }
+
+        .photo-gallery { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; align-items: center; }
+        .gallery-item { position: relative; display: inline-block; }
+        .gallery-item .action-menu { position: absolute; top: -6px; right: -6px; z-index: 10; }
+        .gallery-item .menu-dots { background: white; border: 1px solid #cbd5e1; border-radius: 50%; width: 22px; height: 22px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-size: 14px; }
+        .photo-thumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; background: #fff; }
+        .photo-thumb.profile { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
+        .photo-thumb:hover { transform: scale(1.1); border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        .card-row { background: var(--bg-main); border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; }
+        .card-title { font-size: 16px; font-weight: bold; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 15px; }
+        .card-col { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; }
+        .card-col h5 { font-size: 11px; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+        .card-item { font-size: 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; background: var(--bg-card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 11px; font-weight: bold; color: var(--text-dark); text-transform: uppercase; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: var(--text-dark); outline: none; transition: 0.2s; }
+        
+        .btn { background: var(--accent); color: white; padding: 8px 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-green { background: var(--success); }
+        .btn-gray { background: #e2e8f0; color: var(--text-dark); }
+        .btn-gray:hover { background: #cbd5e1; }
+        .btn-red { background: var(--danger); }
+        .btn-dark { background: var(--primary); }
+        
+        .badge { padding: 4px 8px; border-radius: 20px; font-weight: 600; font-size: 11px; display: inline-block; text-align: center; }
+        .badge-success { background: #dcfce7; color: #15803d; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+        .badge-warning { background: #fef3c7; color: #b45309; }
+        .badge-gray { background: #e2e8f0; color: #475569; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }
+        .badge-purple { background: #f3e8ff; color: #7e22ce; }
+        .badge-dark { background: #334155; color: #f8fafc; }
+        
+        .contract-duration-box { background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:10px; margin-top:5px; font-size:12px; }
+        .contract-duration-box .time-val { font-size:14px; font-weight:bold; color:var(--primary); margin-bottom:4px; }
+        .contract-duration-box .progress-bar { width:100%; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; margin-top:6px; }
+        .contract-duration-box .progress-fill { height:100%; transition: width 0.3s ease; }
+        
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; flex-direction: column; }
+        .lightbox img { max-width: 90%; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 20px; background:white; }
+        .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 30px; color: white; cursor: pointer; }
+        
+        .editor-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; border-radius: 10px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+
+        .month-selector { background: #fff; color: var(--text-dark); border: 2px solid var(--accent); padding: 6px 12px; border-radius: 6px; font-weight: bold; outline: none; }
+        
+        .dossier-card { padding: 20px; font-size: 14px; background: white; border-radius: 8px; border: 1px solid var(--border); }
+        .dossier-line { display: flex; padding: 10px 0; border-bottom: 1px solid #e2e8f0; align-items: flex-start; }
+        .dossier-label { font-weight: bold; width: 220px; color: var(--text-dark); flex-shrink: 0; text-transform: uppercase; font-size: 12px; }
+        .dossier-value { color: var(--text-main); flex: 1; }
+
+        .print-only { display: none; }
+
+        /* ── UPLOAD SPINNER OVERLAY ── */
+        .upload-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.65); display:none; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(4px); }
+        .upload-overlay.active { display:flex; }
+        .upload-box { background:white; border-radius:12px; padding:30px 40px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+        .upload-box .spinner { width:48px; height:48px; border:4px solid #e2e8f0; border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+        .upload-box p { font-size:14px; font-weight:600; color:var(--primary); margin-bottom:4px; }
+        .upload-box small { font-size:11px; color:#64748b; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── TOAST NOTIFICATIONS ── */
+        .toast-container { position:fixed; bottom:24px; right:24px; display:flex; flex-direction:column; gap:10px; z-index:9998; }
+        .toast { background:white; border-radius:8px; padding:12px 18px; font-size:13px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.15); border-left:4px solid var(--accent); display:flex; align-items:center; gap:10px; animation:slideIn 0.3s ease; max-width:340px; }
+        .toast.success { border-left-color:var(--success); }
+        .toast.error { border-left-color:var(--danger); }
+        .toast.warning { border-left-color:var(--warning); }
+        @keyframes slideIn { from { transform:translateX(100px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+        /* ── SYNC STATUS INDICATOR ── */
+        .sync-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+        .sync-status.synced  { background:#dcfce7; color:#15803d; }
+        .sync-status.syncing { background:#fef3c7; color:#b45309; }
+        .sync-status.error   { background:#fee2e2; color:#b91c1c; }
+
+        @media print {
+            body:not(.printing-dossier) html, body:not(.printing-dossier) body { height: auto !important; overflow: visible !important; background: white !important; color: black !important; display: block !important; margin: 0 !important; padding: 0 !important; }
+            body:not(.printing-dossier) .top-nav, body:not(.printing-dossier) .tabs-header, body:not(.printing-dossier) .action-bar, body:not(.printing-dossier) .btn, body:not(.printing-dossier) .editor-modal, body:not(.printing-dossier) .lightbox, body:not(.printing-dossier) .month-selector, body:not(.printing-dossier) .no-print, body:not(.printing-dossier) .dashboard-grid { display: none !important; }
+            body:not(.printing-dossier) .action-menu { display: none !important; }
+            
+            body:not(.printing-dossier) .main-content { padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
+            body:not(.printing-dossier) .tab-panel { display: none !important; }
+            body:not(.printing-dossier) .tab-panel.active { display: block !important; height: auto !important; overflow: visible !important; page-break-inside: auto; }
+            
+            body:not(.printing-dossier) .table-wrapper { border: none !important; box-shadow: none !important; background: transparent !important; overflow: visible !important; height: auto !important; max-height: none !important; margin: 0 !important; page-break-inside: auto; }
+            body:not(.printing-dossier) .group-header { border: 1px solid #000; background: #eee !important; color: #000 !important; margin-top: 20px !important; page-break-after: avoid; }
+            
+            body:not(.printing-dossier) .data-table, body:not(.printing-dossier) .inner-table { width: 100% !important; border-collapse: collapse !important; page-break-inside: auto; }
+            body:not(.printing-dossier) .data-table th, body:not(.printing-dossier) .inner-table th { background: #eee !important; color: black !important; border: 1px solid #000 !important; padding: 6px !important; }
+            body:not(.printing-dossier) .data-table td, body:not(.printing-dossier) .inner-table td { border: 1px solid #aaa !important; color: black !important; padding: 6px !important; vertical-align: top; }
+            
+            body.printing-dossier { background: white !important; display: block !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+            body.printing-dossier > *:not(#dossier-modal) { display: none !important; }
+            body.printing-dossier #dossier-modal { position: static; display: block !important; background: white; height: auto !important; overflow: visible !important; }
+            body.printing-dossier #dossier-modal .modal-content { box-shadow: none; width: 100%; max-width: 100%; border: none; margin: 0; padding: 0; height: auto !important; overflow: visible !important; }
+            body.printing-dossier .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <h2>⛪ IPDD Sistema Global <span style="font-size:12px; font-weight:normal; margin-left:10px; background:#2563eb; color:white; padding:2px 8px; border-radius:12px;">Base Completa + Papelera/Historial Seguro</span></h2>
+        <div class="nav-controls">
+            <span id="sync-badge" class="sync-status synced" title="Estado de sincronización con Supabase">&#x2705; Sincronizado</span>
+            <label style="font-size:12px; font-weight:bold; color:white;">Mes Contable:</label>
+            <input type="month" id="global-month" class="month-selector" onchange="changeMonth()">
+        </div>
+    </div>
+
+    <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('tab-iglesias')">🏢 1. Módulo Iglesias y Ficha</button>
+        <button class="tab-btn" onclick="switchTab('tab-contratos')">📄 2. Inmuebles e Inventario</button>
+        <button class="tab-btn" onclick="switchTab('tab-cofres')" style="color:var(--warning); font-weight:bold;">🔐 3. Cofres de Seguridad</button>
+        <button class="tab-btn" onclick="switchTab('tab-membresia')">👥 4. Módulo de Membresía</button>
+        <button class="tab-btn" onclick="switchTab('tab-finanzas')" style="color:var(--success); font-weight:bold;">💰 5. Finanzas y Reportes</button>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="action-bar" style="display: flex; gap: 15px; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+            <div style="flex: 1;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Búsqueda Inteligente Global (Sedes y Miembros)</label><br>
+                <input type="text" id="global-search" placeholder="Buscar por código ID, sede, país, estado, pastor, nombre de miembro, documento..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px;" oninput="renderAllTables()">
+            </div>
+            <div>
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Operaciones Maestras</label><br>
+                <div style="display: flex; gap: 8px; margin-top: 5px;">
+                    <button class="btn btn-green" onclick="openAddChurchModal()">➕ Registrar Nueva Sede</button>
+                    <button class="btn" style="background:#0ea5e9;" onclick="window.print()">🖨️ Imprimir Vista / Exportar PDF</button>
+                    <button class="btn" style="background:#10b981;" onclick="exportCSV()">📥 Descargar CSV</button>
+                    <button class="btn" style="background:#475569;" onclick="openHistoryModal()">🗑️ Historial / Papelera</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-iglesias" class="tab-panel active">
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🏢 Fichas de Ubicación, Fechas y Liderazgo Completo</h3>
+            <div id="wrapper-iglesias"></div>
+        </div>
+
+        <div id="tab-contratos" class="tab-panel">
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">📄 Control de Inmuebles, Servicios Básicos e Inventario</h3>
+            <div id="wrapper-contratos"></div>
+        </div>
+
+        <div id="tab-cofres" class="tab-panel">
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🔐 Registro Restringido de Llaves y Custodios</h3>
+            <div id="wrapper-cofres"></div>
+        </div>
+
+        <div id="tab-membresia" class="tab-panel">
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">👥 Control y Desglose de Membresía Local</h3>
+            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Listado maestro para administrar miembros. Los miembros desligados, expulsados o fallecidos se mantienen en el historial pero <b>no suman</b> en el total contable.</p>
+            <div id="wrapper-membresia"></div>
+        </div>
+
+        <div id="tab-finanzas" class="tab-panel">
+            <h3 style="margin-bottom: 10px; color: var(--text-dark);">💰 Central de Cuentas, Flujo de Caja y Consolidación</h3>
+            
+            <div class="dashboard-grid no-print">
+                <div class="dash-card"><h4>Sedes Evaluadas</h4><div class="val" id="dash-tot-churches">0</div></div>
+                <div class="dash-card"><h4>Ingresos (Mes Actual)</h4><div class="val" style="color: var(--success);" id="dash-entradas">R$ 0,00</div></div>
+                <div class="dash-card"><h4>Egresos (Mes Actual)</h4><div class="val" style="color: var(--danger);" id="dash-saidas">R$ 0,00</div></div>
+                <div class="dash-card"><h4>Saldo (Mes Actual)</h4><div class="val" style="color: var(--accent);" id="dash-saldo">R$ 0,00</div></div>
+            </div>
+
+            <div class="no-print" style="margin-bottom:20px; display:flex; gap:10px;">
+                <button class="btn" id="btn-modo-mensual" style="background:var(--primary); font-size:14px;" onclick="setModoM5('mensual')">📊 Visión Mensual Detallada</button>
+                <button class="btn" id="btn-modo-historico" style="background:#64748b; font-size:14px;" onclick="setModoM5('historico')">📅 Ver Historial 3 Meses Global</button>
+            </div>
+
+            <div id="master-report-area"></div>
+        </div>
+    </div>
+
+    <div class="editor-modal" id="history-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 style="color: var(--danger);">🛡️ Historial de Eliminación y Auditoría</h3>
+                <button class="close-btn" onclick="closeModal('history-modal')">✖</button>
+            </div>
+            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Aquí se registran las acciones críticas y archivos eliminados de forma definitiva. Usa esta bandeja para mantener la base de datos limpia de registros basuras. <b>Acceso protegido.</b></p>
+            <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">Fecha y Hora</th>
+                            <th>Tipo de Acción</th>
+                            <th>Detalles del Registro</th>
+                            <th style="text-align: center;">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-gray" onclick="closeModal('history-modal')">Cerrar Historial</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-modal" id="editor-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Actualizar Información Modular</h3>
+                <button class="close-btn" onclick="closeModal('editor-modal')">✖</button>
+            </div>
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-tab">
+            <div id="dynamic-form-area"></div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-gray" onclick="closeModal('editor-modal')">Cancelar</button>
+                <button class="btn btn-green" onclick="saveData()">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-modal" id="dossier-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header no-print">
+                <h3>📄 Dossier Técnico de la Iglesia</h3>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="background:#0ea5e9;" onclick="printDossier()">🖨️ Imprimir Ficha / PDF</button>
+                    <button class="close-btn" onclick="closeModal('dossier-modal')">✖</button>
+                </div>
+            </div>
+            <div id="dossier-body"></div>
+        </div>
+    </div>
+
+    <div class="editor-modal" id="add-member-modal">
+        <div class="modal-content" style="max-width: 750px;">
+            <div class="modal-header">
+                <h3 id="modal-member-title">➕ Añadir Nuevo Registro Ministerial</h3>
+                <button class="close-btn" onclick="closeModal('add-member-modal')">✖</button>
+            </div>
+            <input type="hidden" id="new-mem-church-id">
+            <input type="hidden" id="edit-mem-idx">
+            <div class="form-grid">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="new_mem_nome"></div>
+                <div class="form-group"><label>CPF / Documento</label><input type="text" id="new_mem_cpf" placeholder="000.000.000-00"></div>
+                <div class="form-group"><label>Teléfono / Celular</label><input type="text" id="new_mem_tel"></div>
+                <div class="form-group"><label>E-mail</label><input type="email" id="new_mem_email"></div>
+                <div class="form-group"><label>Cargo Eclesiástico</label>
+                    <select id="new_mem_cargo">
+                        <option value="Presbítero (Pastor)">Presbítero (Pastor)</option>
+                        <option value="Diácono">Diácono</option>
+                        <option value="Cooperador">Cooperador</option>
+                        <option value="Cooperadora">Cooperadora</option>
+                        <option value="Miembro">Miembro</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Fecha de Ingreso a Sede</label><input type="date" id="new_mem_fecha"></div>
+                
+                <div class="form-group full" style="margin-top: 10px; border-top:1px dashed #cbd5e1; padding-top:15px;">
+                    <label>Situación Actual del Miembro</label>
+                    <select id="new_mem_situacion" onchange="toggleMemberStatusFields()">
+                        <option value="En comunión activo">En comunión activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                        <option value="En disciplina">En disciplina</option>
+                        <option value="Trasladado">Trasladado (Con Carta)</option>
+                        <option value="Desligado">Desligado (Retirado voluntariamente)</option>
+                        <option value="Expulsado/excluido">Expulsado / Excluido</option>
+                        <option value="Fallecido">Fallecido</option>
+                    </select>
+                </div>
+
+                <div id="fields_disciplina" style="display:none; grid-column: 1 / -1; background:#fef2f2; padding:15px; border-radius:6px; border:1px solid #fca5a5;">
+                    <h4 style="font-size:12px; color:var(--danger); margin-bottom:10px; text-transform:uppercase;">Detalles de la Disciplina</h4>
+                    <div class="form-grid" style="padding:0; border:none; background:transparent; gap:10px;">
+                        <div class="form-group full"><label>Motivo de la Disciplina</label><input type="text" id="new_mem_disc_motivo" placeholder="Describa el motivo..."></div>
+                        <div class="form-group"><label>Disciplinado por (Pastor)</label><input type="text" id="new_mem_disc_pastor" placeholder="Nombre del pastor que disciplina..."></div>
+                        <div class="form-group"><label>Tiempo de Disciplina</label>
+                            <select id="new_mem_disc_tiempo" onchange="calcDisciplinaFin()">
+                                <option value="1 mes">1 mes</option><option value="2 meses">2 meses</option><option value="3 meses">3 meses</option>
+                                <option value="4 meses">4 meses</option><option value="5 meses">5 meses</option><option value="6 meses">6 meses</option>
+                                <option value="1 año">1 año</option><option value="2 años">2 años</option><option value="Indefinido">Indefinido</option>
+                                <option value="Otro">Otro (Elegir fecha manual)</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Fecha de Inicio</label><input type="date" id="new_mem_disc_inicio" onchange="calcDisciplinaFin()"></div>
+                        <div class="form-group"><label>Fecha de Fin Calculada</label><input type="date" id="new_mem_disc_fin" readonly></div>
+                    </div>
+                </div>
+
+                <div id="fields_estado_fecha" style="display:none; grid-column: 1 / -1; background:#f8fafc; padding:15px; border-radius:6px; border:1px solid #cbd5e1;">
+                    <h4 style="font-size:12px; color:var(--primary); margin-bottom:10px; text-transform:uppercase;">Detalles del Estado</h4>
+                    <div class="form-grid" style="padding:0; border:none; background:transparent; gap:10px;">
+                        <div class="form-group"><label id="label_estado_fecha">Fecha del Suceso</label><input type="date" id="new_mem_estado_fecha"></div>
+                        <div class="form-group full"><label>Observación Detallada (Motivo / Carta de Recomendación / etc)</label><input type="text" id="new_mem_estado_obs" placeholder="Añada aquí los detalles necesarios..."></div>
+                    </div>
+                </div>
+
+                <div class="form-group full" style="margin-top: 10px;"><label>Observación General (Opcional)</label><textarea id="new_mem_obs"></textarea></div>
+            </div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-gray" onclick="closeModal('add-member-modal')">Cancelar</button>
+                <button class="btn btn-green" onclick="saveNewMember()">💾 Guardar Información</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-modal" id="add-church-modal">
+        <div class="modal-content" style="max-width: 750px;">
+            <div class="modal-header">
+                <h3>APERTURA Y REGISTRO DE NUEVA SEDE</h3>
+                <button class="close-btn" onclick="closeModal('add-church-modal')">✖</button>
+            </div>
+            <div style="background:#eff6ff; padding:15px; border-radius:6px; border:1px solid #bfdbfe; margin-bottom:15px; font-size:12px; color:var(--text-main);">
+                <b>Regla de IDs:</b> El ID es generado automáticamente. Ex: Brasil (Ceará) = <span style="font-weight:bold; color:var(--accent);">BR CE-001</span>.
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label>País</label><input type="text" id="add_pais" list="paises_list" oninput="updateStatesList()" autocomplete="off"><datalist id="paises_list"></datalist></div>
+                <div class="form-group"><label>Estado / Región</label><input type="text" id="add_estado" list="estados_list" oninput="generateDynamicID()" autocomplete="off"><datalist id="estados_list"></datalist></div>
+                <div class="form-group"><label>ID Permanente</label><input type="text" id="add_id" style="font-weight:bold; color:var(--accent); background:#f8fafc;"></div>
+                <div class="form-group"><label>Ciudad / Sede</label><input type="text" id="add_cidade"></div>
+                <div class="form-group full"><label>Dirección Física</label><input type="text" id="add_endereco"></div>
+                <div class="form-group"><label>1º Dirigente (Pastor)</label><input type="text" id="add_pastor"></div>
+                <div class="form-group"><label>Teléfono Dirigente</label><input type="text" id="add_cel_pastor" value="+55 "></div>
+            </div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn btn-gray" onclick="closeModal('add-church-modal')">Cancelar</button>
+                <button class="btn btn-green" onclick="submitNewChurch()">💾 Confirmar Apertura</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD SPINNER OVERLAY -->
+    <div class="upload-overlay" id="upload-overlay">
+        <div class="upload-box">
+            <div class="spinner"></div>
+            <p>Subiendo archivo a Google Drive...</p>
+            <small>Por favor espera, esto puede tomar unos segundos.</small>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" src="" alt="Vista">
+    </div>
+
+<script>
+    // ============================================================
+    // IPDD SISTEMA GLOBAL — Integración Supabase + Google Drive
+    // ============================================================
+
+    // ── SUPABASE CONFIG ──────────────────────────────────────────
+    const SUPABASE_URL = 'https://cmphsgbieupmqjvqedix.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_HO12D11b34-b6MXOU9AOXQ__20giRiu';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ── GOOGLE DRIVE PROXY CONFIG ────────────────────────────────
+    // Proxy en Render.com (gratis, siempre activo)
+    const DRIVE_PROXY_URL = 'https://ipdd-drive-proxy.onrender.com';
+
+    // ── BASE DE DATOS EN MEMORIA (se carga desde Supabase) ───────
+    let db = [];
+
+    // ── HISTORIAL EN MEMORIA (se carga desde Supabase) ───────────
+    let systemHistory = [];
+    
+    // ── CONTRASEÑA PARA ELIMINAR O ENTRAR AL HISTORIAL ───────────
+    const ADMIN_PWD = "admin123"; 
+
+    // ── TOAST NOTIFICATIONS ──────────────────────────────────────
+    function showToast(msg, type = 'info', duration = 3500) {
+        const icons = { success: '✅', error: '❌', warning: '⚠️', info: '💬' };
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${icons[type] || '💬'}</span><span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s'; setTimeout(() => toast.remove(), 400); }, duration);
+    }
+
+    // ── SYNC STATUS BADGE ─────────────────────────────────────────
+    function setSyncStatus(status) {
+        const badge = document.getElementById('sync-badge');
+        if (!badge) return;
+        if (status === 'syncing') { badge.className = 'sync-status syncing'; badge.textContent = '⏳ Guardando...'; }
+        else if (status === 'error') { badge.className = 'sync-status error'; badge.textContent = '❌ Error sync'; }
+        else { badge.className = 'sync-status synced'; badge.textContent = '✅ Sincronizado'; }
+    }
+
+    // ── SPINNER DE UPLOAD ─────────────────────────────────────────
+    function showUploadSpinner() { document.getElementById('upload-overlay').classList.add('active'); }
+    function hideUploadSpinner() { document.getElementById('upload-overlay').classList.remove('active'); }
+
+
+    // --- FUNCIÓN DE REGISTRO EN HISTORIAL (persiste en Supabase) ---
+    async function logHistory(action, details, churchId = null) {
+        let now = new Date();
+        let d = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+        let entry = { date: d, action: action, details: details };
+        systemHistory.unshift(entry);
+
+        // Persistir en Supabase
+        try {
+            await _supabase.from('system_history').insert({
+                action: action,
+                details: details,
+                church_id: churchId
+            });
+        } catch(e) { /* silencioso — el historial local ya fue registrado */ }
+    }
+
+    function openHistoryModal() {
+        let pwd = prompt("ACCESO RESTRINGIDO A LA PAPELERA.\n\nPor favor, ingrese la contraseña de administrador:");
+        if (pwd === ADMIN_PWD) {
+            loadHistory();
+        } else if (pwd !== null) {
+            alert("❌ Contraseña incorrecta. Acceso denegado.");
+        }
+    }
+
+    async function loadHistory() {
+        const { data, error } = await _supabase
+            .from('system_history')
+            .select('*')
+            .order('action_date', { ascending: false })
+            .limit(200);
+
+        if (!error && data) {
+            systemHistory = data.map(h => ({
+                id: h.id,
+                date: new Date(h.action_date).toLocaleDateString() + ' ' + new Date(h.action_date).toLocaleTimeString(),
+                action: h.action,
+                details: h.details
+            }));
+        }
+        renderHistory();
+        document.getElementById('history-modal').style.display = "flex";
+    }
+
+    function renderHistory() {
+        let tbody = document.getElementById("history-body");
+        if (systemHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:gray; font-weight:bold;">El historial y la papelera están limpios.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = systemHistory.map((h, i) => `
+            <tr>
+                <td><small style="color:var(--text-muted); font-weight:bold;">${h.date}</small></td>
+                <td><span class="badge badge-warning" style="background:#fef2f2; color:var(--danger); border:1px solid var(--danger);">${h.action}</span></td>
+                <td><span style="font-size:12px;">${h.details}</span></td>
+                <td style="text-align: center;">
+                    <button class="btn btn-red" style="padding:4px 8px; font-size:10px; background:var(--danger);" onclick="deleteFromHistory(${i}, '${h.id || ''}')">🗑️ Borrar Permanente</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function deleteFromHistory(i, supabaseId) {
+        if(confirm("¿Estás seguro de eliminar este registro del historial definitivamente?")) {
+            systemHistory.splice(i, 1);
+            renderHistory();
+            // Eliminar de Supabase
+            if (supabaseId) {
+                await _supabase.from('system_history').delete().eq('id', supabaseId);
+            }
+        }
+    }
+    
+    // --- LÓGICA DE CÓDIGOS DE PAÍS / ESTADO ---
+    function getCountryCode(countryName) {
+        if(!countryName) return 'XX';
+        let name = countryName.trim().toUpperCase();
+        if(name.includes('BRASIL')) return 'BR';
+        if(name.includes('PERÚ') || name.includes('PERU')) return 'PE';
+        return name.substring(0, 2); 
+    }
+
+    const brasilStateCodes = {
+        'CEARÁ': 'CE', 'GOIÁS': 'GO', 'GOIÁS - GO': 'GO', 'DISTRITO FEDERAL': 'DF', 'DISTRITO FEDERAL - DF': 'DF',
+        'MATO GROSSO DO SUL': 'MS', 'ESPÍRITO SANTO': 'ES', 'MINAS GERAIS': 'MG', 'MINAS GERAIS - MG': 'MG',
+        'SÃO PAULO': 'SP', 'SÃO PAULO - SP': 'SP', 'RIO DE JANEIRO': 'RJ', 'PARANÁ': 'PR', 'PARANÁ - PR': 'PR',
+        'RIO GRANDE DO SUL': 'RS', 'RIO GRANDE DO SUL - RS': 'RS', 'SANTA CATARINA': 'SC', 'ACRE': 'AC'
+    };
+
+    function getStateAbbr(countryName, estadoName) {
+        if(!estadoName) return 'XX';
+        let estClean = estadoName.trim().toUpperCase();
+        let cName = countryName.trim().toUpperCase();
+        if (cName.includes('BRASIL')) return brasilStateCodes[estClean] || estClean.substring(0, 2);
+        let parts = estClean.split('-');
+        return parts[0].trim().substring(0, 2); 
+    }
+
+    // ========================================================
+    // BASE DE DATOS DE IGLESIAS (CSV TEXTO EN BRUTO INTEGRADO)
+    // ========================================================
+    let rawCsvData = `ESTADO,NOME IPDD,ENDEREÇO,HORARIO,PASTOR
+Ceará,Fortaleza - Ceará,"Rua rosinha Sampaio 2006 - Bairro Jardim Guanabara","Domingo as 15 horas, Quarta as 19h, Sexta as 19h",Lidel Pinto Dos Santos
+Ceará,Irauçuba,"Avenida Paulo Bastos - Bairro centro",Quartas e domingos as 19h,Pastor Elito dos Santos
+Ceará,Independência,"Avenida 7 de setembro 879",Quartas e domingos às 19 horas,Gilmar Rodrigues
+Goiás - GO,Anápolis,"Avenida Araguaia 240 esquina com a rua 15",Todos os dias das 19h às 21h e Quarta e Sabado às 8h,Eurípedes Moreira Da Silva
+Goiás - GO,Goianesia,"R. 18 A , esquina com rua dos Pinheiros","Domingo, Terca, Quarta, Quinta, Sexta feira ás 19:00h",Oscalino
+Goiás - GO,Jataí,"Rua Um, 171 Hamilton Nunes, Jataí - GO","Domingo, Segunda e Sexta as 19:30hrs",Evandro
+Goiás - GO,Goiânia,"Rua do estanho número 200 setor marabá","Domingos, quartas e sextas às 19:30h",Gabriel
+Distrito Federal - DF,Brasilia - Ceilândia,"Shsn trecho 3 chácara 66 lote 25 sol nascente ceilandia DF","Terça, Quinta e Sabado as 19:30",Pr Orlei
+Distrito Federal - DF,Brasilia (Gama),"Quadra 07 lote 05/06 setor sul do gama /DF","Quarta , sexta e domingo as 19:30h",Pr Orlei
+Mato Grosso do Sul,Maracaju,"Rua valeriano de castro n150 vila juquita","Domingo às 09:00 e quarta-feira às 19:00 hrs",Sidney José Pereira
+Mato Grosso do Sul,Três Lagoas,"Rua Maria moreira de Queiroz (antiga Viela 2) n°59 - B. guanabara","Quarta, sexta e domingo as 19 hrs",Pastor Creles
+Mato Grosso do Sul,Figueirão,"Avenida moises de araujo galvao","Domingo quarta e sexta as 19h",Evandro
+Mato Grosso do Sul,Douradina,"Rua José Carlos da Silva, 549 Vila das Flores","Terca, Quinta, Domingo as 19h",João Isnarde
+Espírito Santo,Aracruz - ES,"Rua dos cedros 35, bairro cohab 4","Domingo quarta e sexta as 19:30h",Adenir Lima Alexandre
+Espírito Santo,Itarana - ES,"Rua jerônimo monteiro numero 54 centro, galeria lili bar","Domingo 19:00 h, Quarta-feira 19:00",Adenir Lima Alexandre
+Espírito Santo,Vila Valério (Paraíso),"Avenida padre domingos bairro paraíso numero 474","Quarta, sexta, domingo 19:00h",Pastor Alex
+Espírito Santo,Vila Valério (Centro),"Rua vereador Luiz calmon. N °32. Centro","Domingo as 19:00h",Gleidistone Silva
+Espírito Santo,Aracruz (Pau-Brasil),"Rua dos cravos, sn. Bairro pau brasil, Aracruz es.","Terca as 19:30h",Aldenir Silva Alexandre
+Espírito Santo,Lagoa de Carapebus,"Rua dos mineiros, bairro lagoa de carapebus n 18","Sexta, domingo 19:30h",Aldenir Silva Alexandre
+Espírito Santo,Guaçuí,"Rod ES-484 , Br 482 - São tiago guaçuí","Domingo e Quinta feira as 19hs",Joceli Moura
+Minas Gerais - MG,Nova Serrana,"Rua Equador n 10 bairro bela vista","Domingo, Quarta e Sexta as 19:30hs",Vitor Alves
+Minas Gerais - MG,Pouso Alegre,"Bairro cidade jardim rua Pedro Ribeiro de Souza n- 135",Domingo e quinta 19:30,Luis Carlos
+Minas Gerais - MG,Pedra Bonita,"Rua são José s/n",Domingos E quarta as 19horas,Valdinei Abraao de Oliveira
+Minas Gerais - MG,Vespasiano,"Rua Tiradentes, número 355",Domingo /Quarta e Quinta As 19h30,Geraldo Lúcio
+Minas Gerais - MG,São João das missões,"Rua do Campo, sem número / aldeia itapicu","Dom, seg, quarta as 19h",Ovenilson Macedo
+Minas Gerais - MG,Turmalina,"Avenida Brasília, n: 671,  bairro campo alegre","Domingo , Quarta e Quinta  às 19:30",José Antônio Gomes
+Minas Gerais - MG,Estrela do Sul,"Rua Alvino Viana - número 88. Bairro centro","Domingo as 18:30 horas",Pascoal Cardoso da Silva Neto
+Minas Gerais - MG,Belo Horizonte,"Rua treze de setembro 741 providência",Segunda a segunda as 19h,Pr Ivonei
+Minas Gerais - MG,Brumadinho,"Rua Euticiano da Silva número 62 bairro são Bento",Quarta e sábado,Pr Ivonei
+Minas Gerais - MG,Ipatinga,"Rua periquito 263 vila celeste Ipatinga mg",Todos os dias as 19;30,Pr Jurandi
+Minas Gerais - MG,Itamuri,"Rua Sebastião de paula neto, 381",Terça a sabado as 19h,Leonardo
+Minas Gerais - MG,Três Corações,"Av 7 de setembro , número 63",Terça as 19h e domingo as 9h,Sebastião
+Minas Gerais - MG,Capetinga,"Rua Manoel Teodoro de paula numero 219",Sabado e domingo as 19:30h,Pedro
+São Paulo - SP,JARAGUÁ SEDE INTERNACIONAL,"Estr. de Taipas, 1999 - Jaraguá","Domingo as 9h - Quinta, Sexta as 20h",Pr Miguel
+São Paulo - SP,Salto,"Av D. Pedro II, 1436","Terça, Quinta, Sábado, e Domingo as 19h30",Nilton Francisco de Sousa
+São Paulo - SP,Registro,"Rua Rio grande do Sul 530 - Jardim Paulistano","Domingo a quarta - as 19:30",Pr Marcelo
+São Paulo - SP,Mogi das Cruzes,"Rua Euzébio de paula leito","Terca, Quinta, Sexta, Sabado e Domingo 19hs",Pastor Isaias
+São Paulo - SP,Itaquaquecetuba - SP,Endereço Antigo da Sede,-,FECHADO
+São Paulo - SP,Paraibuna,"Rua padre Vicente,119. Bairro alferes Benedito","Segunda, Quarta e Sexta e Domingo às 19:30hs",João Pereira
+São Paulo - SP,Ilha-Bela,"Rua Santa Teresa 319, água branca ilha bela -sp",Terça quinta sexta sábado e domingo as 19:30,André Ricardo
+São Paulo - SP,Várzea Paulista,"Rua São Carlos ,16 Jardim América 4 ,várzea Paulista SP",Terca quinta e sábado,Nirceu Da Silva Ferreira
+São Paulo - SP,Ermelino Matarazzo,"Rua São Bertolomeu 391",Quinta e domingo,Pr Miguel
+São Paulo - SP,Iguape,"Rodovia prefeito casimiro teixeira N 7349",Sexta as 19:30,Pr Marcelo
+São Paulo - SP,Guaratinguetá,"Rua Expedicionários de guaratingueta n222 ,  santa luzia","Terça a sexta-feira  19:30 , domingo  19hrs",João Nunes
+São Paulo - SP,Capão Redondo-SP,"Rua valeriano de castro n150",Segunda a domingo 19h,Jocisnaldo
+São Paulo - SP,Campinas,"Rua da campinas S/N",Todos os dias 19h,Pr Nilton
+São Paulo - SP,Itapira - SP,"Endereço central itapira",Quarta e domingo,Hélio
+São Paulo - SP,Itatiba - SP,"Rua itatiba",Terca e sexta,Nirceu Da Silva Ferreira
+São Paulo - SP,Serra Negra,"Rua serra negra S/N",Domingos as 19h,Hélio
+São Paulo - SP,Jaú - SP,"Avenida Principal de Jaú",Todos os dias 20h,Nilton Francisco de Sousa
+São Paulo - SP,Itaquaquecetuba (Corredor),"Rua do Corredor",Sextas,Pr Jose Carlos
+São Paulo - SP,Campo Limpo,"Rua Campo Limpo S/N",Todos os dias 19:30h,Pr Clovis
+São Paulo - SP,Francisco Morato,"Rua Francisco Morato",Terca a Sabado 19h,Pr Carlos
+Rio de Janeiro,Varresai,"Rua Manoel Martins figueiredo",Todos os dias as 19h,Rogerio Miranda Alves
+Rio de Janeiro,Itaboraí,"Rua 29 Qd 118 Lt 12 / N°12.  Bairro Apolo lll","Quartas e sextas ás 19h30,  domingos as 18h",Edimilson Oliveira
+Rio de Janeiro,Campo Grande,"Estrada Rio São Paulo, número 5262",Segundas e domingos ás 19h30,Edmilson Oliveira
+Rio de Janeiro,Ourânia,"Rua maria lúcia  n° 165 distrito de ourania",Quartas e sábados as 19h,Dionnatan Silva
+Rio de Janeiro,Rosal - Itabapoana,"Av. Pr. Samuel Henrique Werneck","Domingo, Terça, Quinta, Sexta-feiras as 19hrs",Rogerio Miranda Alves
+Rio de Janeiro,Petrópolis - RJ,"Estrada do Carangola número 935 A","Domingo a segunda as 19:30",Edimilson Oliveira
+Rio de Janeiro,Angra dos Reis,"Rua das pedras n 18 Angra dos Reis RJ",Terca e quinta 19h,Eliezer
+Paraná - PR,Prudentópolis (Delmira),"Prudentópolis Vila Delmira",Domingo Terça Sexta às 19:30,Pastor Aparício da Silva
+Paraná - PR,Prudentópolis (Rural),"Faxinal Prudentópolis rural",Sabado As 19h,Pastor Aparício da Silva
+Paraná - PR,PARANAGUÁ,"Rua do Paranaguá",Todos os dias as 19h,Pr José
+Rio Grande do Sul - RS,Canoas,"Rua Ceará, 381 Bairro Mathias velho",Terca a Domingo 20h,Wesley F.
+Rio Grande do Sul - RS,Viamão,"Estrada boqueirão 297 ,bairro elza","Domingos, terça, quinta e sábado, às 19:30",Élito
+Rio Grande do Sul - RS,Tramandaí,"Rua : vereador Ceni borges monteiro 371. Pq dos presidentes","Domingo , Quarta ,Sexta   As 19:30 h",Lucas Machado
+Rio Grande do Sul - RS,Irai,"Rua 23 de Maio 125, vila militar Irai",Domingos E Quarta 19:30,Luiz Francisco
+Rio Grande do Sul - RS,Jaguarão,"Rua 24 de maio , bairro Pindorama n42","Domingo E Quarta feira ,  h 20:00",Erasmo Rodrigues
+Rio Grande do Sul - RS,Cacique Doble,"Av Kaigang 1672",Sábado E Domingo 19:30h,Zaqueu Pinto
+Rio Grande do Sul - RS,Porto Alegre,"Rua São Luis porto alegre",Terca as 19h,Elton Ortiz
+Santa Catarina,Rio d´Oeste,"Rodovia SC 350 , N° 3500 , bairro João Nardelli","Quartas e Sextas -feiras ás 20:00h",Pr Diego Cesar
+Santa Catarina,Palhoça Brejaru,"Rua Joõa do Carmos lopes",Quarta a sabado as 19h,Pastor Samuel
+Santa Catarina,Joinville,"Joinville bairo Jardim iririu rua papa João Paulo 1 número 475","quartas 19h, sexta 19h e domingo a las 18h",Cleones Marchi
+Santa Catarina,Rio do Sul,"Rio do Sul, bairro Barragen, estrada da Madeira 1530","terça 19h, quinta 19h , sábados 19h , Domingo 18h",Valdir Cristiano Wessner
+Acre,Rio Branco,"Rua São Raimundo Nonato, 656 Vitória, Rio Branco","Do,Ter, Qua, Qui, Sex, Sab ás 19h",Eldo Lima
+Cusco - Perú,Sicuani,"Jirón Ayacucho No. 209 con la av. Manuel callo zevallos","miercoles y domingo 9am - martes 7pm y viernes 8pm",Pr Alfonso
+Lima - Perú,Lima - Ventanilla,"Calle 3 Mz. J Lte 13 - Kumamoto","Miercoles a las 7pm y Domingo a las 10am",cultos en el Hogar
+Arequipa -Perú,Pedregal - Majes,"Av. Arequipa Mz. B6 Lote 19 Modulo A sector 3","Martes 7.00.pm, Miércoles 9.00 am, Viernes vigilia 8.00 pm, Domingo 9",Pr Alfonso
+Huánuco - Perú,Huánuco,"Rua principal huanuco",Todos los dias 19h,Pr David
+Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 19h,Pr Jorge`;
+
+    // --- PARSER DE CSV AVANZADO ---
+    function parseCSV(str) {
+        let arr = []; let quote = false; let row = 0; let col = 0;
+        for (let c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
+
+    let counters = {}; 
+    let parsedLines = parseCSV(rawCsvData);
+
+    // Omitimos la fila de encabezado (index 0) y generamos la base de datos
+    for (let i = 1; i < parsedLines.length; i++) {
+        let parts = parsedLines[i];
+        if(parts.length < 5) continue;
+        
+        let estado = parts[0].trim();
+        let nombre = parts[1].trim();
+        let address = parts[2].trim();
+        let horario = parts[3].trim();
+        let pastor = parts[4].trim();
+        
+        let country = estado.toLowerCase().includes("perú") ? "Perú" : "Brasil";
+        let countryCode = getCountryCode(country);
+        let stateCode = getStateAbbr(country, estado);
+        
+        let prefixKey = `${countryCode} ${stateCode}`;
+        if(!counters[prefixKey]) counters[prefixKey] = 0;
+        counters[prefixKey]++;
+        
+        let finalId = `${prefixKey}-${String(counters[prefixKey]).padStart(3, '0')}`;
+        let phonePrefix = country === "Brasil" ? "+55 " : "+51 ";
+        let status = (pastor.toUpperCase().includes("FECHADO") || nombre.toUpperCase().includes("FECHADO")) ? "Cerrada" : "Abierta";
+
+        let mensual_history = {};
+        let d = new Date(2023, 5, 1);
+        let endD = new Date(2026, 5, 1);
+        let offset = 0;
+        while(d <= endD) {
+            let mk = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0');
+            mensual_history[mk] = {
+                entrada: status === "Abierta" ? 1250+(offset*15) : 0, saida: status === "Abierta" ? 450+(offset*5) : 0, saldo: status === "Abierta" ? 800+(offset*10) : 0,
+                envio_relatorio: status === "Abierta" ? "SIM" : "NÃO", obs_saldo: "",
+                adjuntos_comprobante_deposito: [], adjuntos_relatorio_fisico: [],
+                custodio_llave_nombre: status === "Abierta" ? "Pr. "+pastor : "-", custodio_llave_tel: status === "Abierta" ? phonePrefix : "", adjuntos_llave_foto: [],
+                custodio_pass_nombre: status === "Abierta" ? "Pr. "+pastor : "-", custodio_pass_tel: status === "Abierta" ? phonePrefix : "", adjuntos_pass_foto: [],
+                obs_cofre: status === "Abierta" ? "Cofre operativo." : "Cerrada."
+            };
+            d.setMonth(d.getMonth() + 1); offset++;
+        }
+
+        db.push({
+            id: finalId, pais: country, estado: estado, ciudad: nombre,
+            nombre_iglesia: `IPDD ${nombre}`, direccion: address, email_iglesia: `contato.${nombre.toLowerCase().replace(/ /g,'')}@ipddglobal.org`,
+            estatus_iglesia: status, fecha_apertura: "", fecha_inauguracion: "", obs_iglesia: "",
+            dias_culto: horario,
+            dirigente1_nome: pastor, dirigente1_tel: phonePrefix,
+            dirigente2_nome: "No asignado", dirigente2_tel: phonePrefix,
+            financiero1_nome: "No asignado", financiero1_tel: phonePrefix,
+            financiero2_nome: "No asignado", financiero2_tel: phonePrefix,
+            tipo_local: "Alquilado", obs_contrato: "", 
+            contrato_estado: status === "Abierta" ? "Vigente" : "Sin Contrato", contrato_titular: "IPDD Sede Central",
+            contrato_inicio: status === "Abierta" ? "2023-06-01" : "", contrato_fin: status === "Abierta" ? "2026-12-31" : "",
+            contrato_monto_mensual: status === "Abierta" ? 1200 : 0,
+            titular_agua: "", titular_luz: "", titular_internet: "", titular_telefono: "",
+            inventario_bienes: "Sillas, Púlpito.", obs_inventario: "",
+            mensual: mensual_history, miembros_list: [], 
+            adjuntos_base: { contrato_doc: [], agua_recibo: [], luz_recibo: [], internet_recibo: [], telefono_recibo: [], fotos_inventario: [] } 
+        });
+    }
+
+    // ========================================================
+    // FUNCIONES PRINCIPALES Y DE MÓDULOS
+    // ========================================================
+    let globalMonth = "";
+    let modoM5 = "mensual"; 
+    let expandedMembersRows = []; 
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        let today = new Date();
+        globalMonth = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById("global-month").value = globalMonth;
+
+        // Mostrar estado de carga
+        setSyncStatus('syncing');
+        ['wrapper-iglesias','wrapper-contratos','wrapper-cofres','wrapper-membresia','master-report-area'].forEach(id => {
+            let el = document.getElementById(id);
+            if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:#64748b;"><div style="font-size:32px; margin-bottom:12px;">⏳</div><b>Cargando datos desde Supabase...</b></div>';
+        });
+
+        await loadDataFromSupabase();
+        renderAllTables();
+        setSyncStatus('synced');
+    });
+
+    // ── CARGA COMPLETA DE DATOS DESDE SUPABASE ───────────────────
+    async function loadDataFromSupabase() {
+        try {
+            // 1. Cargar todas las sedes
+            const { data: churches, error: cErr } = await _supabase
+                .from('churches')
+                .select('*')
+                .order('estado', { ascending: true });
+
+            if (cErr) throw cErr;
+
+            // 2. Cargar todos los reportes mensuales
+            const { data: monthly, error: mErr } = await _supabase
+                .from('monthly_reports')
+                .select('*');
+
+            if (mErr) throw mErr;
+
+            // 3. Cargar todos los miembros
+            const { data: members, error: memErr } = await _supabase
+                .from('members')
+                .select('*')
+                .order('nome', { ascending: true });
+
+            if (memErr) throw memErr;
+
+            // 4. Cargar todos los attachments
+            const { data: attachments, error: attErr } = await _supabase
+                .from('attachments')
+                .select('*');
+
+            if (attErr) throw attErr;
+
+            // 5. Construir db[] en el formato que espera la UI
+            db = churches.map(c => {
+                // Mensual: convertir array de registros a objeto indexado por month_key
+                let mensualObj = {};
+                (monthly || [])
+                    .filter(m => m.church_id === c.id)
+                    .forEach(m => {
+                        mensualObj[m.month_key] = {
+                            _supabase_id:              m.id,
+                            entrada:                   parseFloat(m.entrada) || 0,
+                            saida:                     parseFloat(m.saida) || 0,
+                            saldo:                     parseFloat(m.saldo) || 0,
+                            envio_relatorio:           m.envio_relatorio || 'NÃO',
+                            obs_saldo:                 m.obs_saldo || '',
+                            custodio_llave_nombre:     m.custodio_llave_nombre || '-',
+                            custodio_llave_tel:        m.custodio_llave_tel || '',
+                            custodio_pass_nombre:      m.custodio_pass_nombre || '-',
+                            custodio_pass_tel:         m.custodio_pass_tel || '',
+                            obs_cofre:                 m.obs_cofre || '',
+                            // Attachments de este reporte mensual
+                            adjuntos_comprobante_deposito: buildAttachments(attachments, 'monthly_report', m.id, 'comprobante_deposito'),
+                            adjuntos_relatorio_fisico:     buildAttachments(attachments, 'monthly_report', m.id, 'relatorio_fisico'),
+                            adjuntos_llave_foto:           buildAttachments(attachments, 'monthly_report', m.id, 'llave_foto'),
+                            adjuntos_pass_foto:            buildAttachments(attachments, 'monthly_report', m.id, 'pass_foto')
+                        };
+                    });
+
+                // Miembros de esta sede
+                let miembrosList = (members || [])
+                    .filter(m => m.church_id === c.id)
+                    .map(m => ({
+                        _supabase_id:     m.id,
+                        id_miembro:       m.id_miembro || '',
+                        nome:             m.nome || '',
+                        cpf:              m.cpf || '',
+                        tel:              m.tel || '',
+                        email:            m.email || '',
+                        cargo:            m.cargo || 'Miembro',
+                        fecha_ingreso:    m.fecha_ingreso || '',
+                        situacion:        m.situacion || 'En comunión activo',
+                        disciplina_motivo:  m.disc_motivo || '',
+                        disciplina_pastor:  m.disc_pastor || '',
+                        disciplina_tiempo:  m.disc_tiempo || '',
+                        disciplina_inicio:  m.disc_inicio || '',
+                        disciplina_fin:     m.disc_fin || '',
+                        estado_fecha:       m.estado_fecha || '',
+                        estado_obs:         m.estado_obs || '',
+                        observacion:        m.obs || '',
+                        foto_perfil:        buildAttachments(attachments, 'member', m.id, 'foto_perfil'),
+                        adjuntos_ficha:     buildAttachments(attachments, 'member', m.id, 'adjuntos_ficha')
+                    }));
+
+                return {
+                    // Datos base de la sede
+                    id:                     c.id,
+                    pais:                   c.pais || 'Brasil',
+                    estado:                 c.estado || '',
+                    ciudad:                 c.ciudad || '',
+                    nombre_iglesia:         c.nombre_iglesia || `IPDD ${c.ciudad}`,
+                    direccion:              c.direccion || '',
+                    email_iglesia:          c.email_iglesia || '',
+                    estatus_iglesia:        c.estatus_iglesia || 'Abierta',
+                    fecha_apertura:         c.fecha_apertura || '',
+                    fecha_inauguracion:     c.fecha_inauguracion || '',
+                    obs_iglesia:            c.obs_iglesia || '',
+                    dias_culto:             c.dias_culto || '',
+                    dirigente1_nome:        c.dirigente1_nome || 'No asignado',
+                    dirigente1_tel:         c.dirigente1_tel || '',
+                    dirigente2_nome:        c.dirigente2_nome || 'No asignado',
+                    dirigente2_tel:         c.dirigente2_tel || '',
+                    financiero1_nome:       c.financiero1_nome || 'No asignado',
+                    financiero1_tel:        c.financiero1_tel || '',
+                    financiero2_nome:       c.financiero2_nome || 'No asignado',
+                    financiero2_tel:        c.financiero2_tel || '',
+                    tipo_local:             c.tipo_local || 'Alquilado',
+                    obs_contrato:           c.obs_contrato || '',
+                    contrato_estado:        c.contrato_estado || 'Sin Contrato',
+                    contrato_titular:       c.contrato_titular || '',
+                    contrato_inicio:        c.contrato_inicio || '',
+                    contrato_fin:           c.contrato_fin || '',
+                    contrato_monto_mensual: parseFloat(c.contrato_monto_mensual) || 0,
+                    titular_agua:           c.titular_agua || '',
+                    titular_luz:            c.titular_luz || '',
+                    titular_internet:       c.titular_internet || '',
+                    titular_telefono:       c.titular_telefono || '',
+                    inventario_bienes:      c.inventario_bienes || '',
+                    obs_inventario:         c.obs_inventario || '',
+                    // Relaciones
+                    mensual:        mensualObj,
+                    miembros_list:  miembrosList,
+                    adjuntos_base: {
+                        contrato_doc:      buildAttachments(attachments, 'church', c.id, 'contrato_doc'),
+                        agua_recibo:       buildAttachments(attachments, 'church', c.id, 'agua_recibo'),
+                        luz_recibo:        buildAttachments(attachments, 'church', c.id, 'luz_recibo'),
+                        internet_recibo:   buildAttachments(attachments, 'church', c.id, 'internet_recibo'),
+                        telefono_recibo:   buildAttachments(attachments, 'church', c.id, 'telefono_recibo'),
+                        fotos_inventario:  buildAttachments(attachments, 'church', c.id, 'fotos_inventario')
+                    }
+                };
+            });
+
+            console.log(`✅ Supabase: ${db.length} sedes cargadas`);
+
+        } catch (err) {
+            console.error('❌ Error cargando desde Supabase:', err);
+            setSyncStatus('error');
+            showToast(`Error al conectar con Supabase: ${err.message}`, 'error', 6000);
+            // Fallback: cargar desde CSV (datos de muestra)
+            loadFromCSVFallback();
+        }
+    }
+
+    // ── Helper: construir array de archivos desde attachments ────
+    function buildAttachments(attachments, entityType, entityId, attachmentKey) {
+        return (attachments || [])
+            .filter(a => a.entity_type === entityType && a.entity_id === String(entityId) && a.attachment_key === attachmentKey)
+            .map(a => ({
+                _supabase_id: a.id,
+                url:          a.public_url || '',
+                name:         a.file_name || '',
+                isPdf:        a.is_pdf || false,
+                driveFileId:  a.storage_path || ''
+            }));
+    }
+
+    // ── FALLBACK: cargar desde CSV si Supabase no está disponible ─
+    function loadFromCSVFallback() {
+        console.warn('⚠️ Cargando datos de ejemplo desde CSV (modo offline)');
+        // Re-ejecutar la generación desde CSV (el código original)
+        let parsedLines = parseCSV(rawCsvData);
+        let counters = {};
+        for (let i = 1; i < parsedLines.length; i++) {
+            let parts = parsedLines[i];
+            if(parts.length < 5) continue;
+            let estado = parts[0].trim(), nombre = parts[1].trim(), address = parts[2].trim(), horario = parts[3].trim(), pastor = parts[4].trim();
+            let country = estado.toLowerCase().includes("perú") ? "Perú" : "Brasil";
+            let countryCode = getCountryCode(country), stateCode = getStateAbbr(country, estado);
+            let prefixKey = `${countryCode} ${stateCode}`;
+            if(!counters[prefixKey]) counters[prefixKey] = 0;
+            counters[prefixKey]++;
+            let finalId = `${prefixKey}-${String(counters[prefixKey]).padStart(3, '0')}`;
+            let phonePrefix = country === "Brasil" ? "+55 " : "+51 ";
+            let status = (pastor.toUpperCase().includes("FECHADO") || nombre.toUpperCase().includes("FECHADO")) ? "Cerrada" : "Abierta";
+            db.push({
+                id: finalId, pais: country, estado, ciudad: nombre, nombre_iglesia: `IPDD ${nombre}`, direccion: address,
+                email_iglesia: `contato.${nombre.toLowerCase().replace(/ /g,'')}@ipddglobal.org`,
+                estatus_iglesia: status, fecha_apertura: '', fecha_inauguracion: '', obs_iglesia: '', dias_culto: horario,
+                dirigente1_nome: pastor, dirigente1_tel: phonePrefix, dirigente2_nome: 'No asignado', dirigente2_tel: phonePrefix,
+                financiero1_nome: 'No asignado', financiero1_tel: phonePrefix, financiero2_nome: 'No asignado', financiero2_tel: phonePrefix,
+                tipo_local: 'Alquilado', obs_contrato: '', contrato_estado: status === 'Abierta' ? 'Vigente' : 'Sin Contrato',
+                contrato_titular: 'IPDD Sede Central', contrato_inicio: status === 'Abierta' ? '2023-06-01' : '', contrato_fin: status === 'Abierta' ? '2026-12-31' : '',
+                contrato_monto_mensual: status === 'Abierta' ? 1200 : 0,
+                titular_agua: '', titular_luz: '', titular_internet: '', titular_telefono: '',
+                inventario_bienes: 'Sillas, Púlpito.', obs_inventario: '', mensual: {}, miembros_list: [],
+                adjuntos_base: { contrato_doc: [], agua_recibo: [], luz_recibo: [], internet_recibo: [], telefono_recibo: [], fotos_inventario: [] }
+            });
+        }
+        showToast('Modo offline: datos de ejemplo cargados. Verifica la conexión con Supabase.', 'warning', 8000);
+    }
+
+
+    // SISTEMA UNIVERSAL CERRAR MENÚS 3 PUNTITOS
+    document.addEventListener("click", () => {
+        document.querySelectorAll('.menu-dropdown').forEach(m => m.style.display = 'none');
+    });
+
+    function toggleMenu(e, targetId) {
+        e.stopPropagation();
+        let allMenus = document.querySelectorAll('.menu-dropdown');
+        allMenus.forEach(m => { if (m.id !== targetId) m.style.display = 'none'; });
+        let menu = document.getElementById(targetId);
+        if(menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function printDossier() {
+        document.body.classList.add('printing-dossier');
+        window.print();
+        setTimeout(() => { document.body.classList.remove('printing-dossier'); renderAllTables(); }, 500);
+    }
+
+    function changeMonth() {
+        globalMonth = document.getElementById("global-month").value;
+        renderAllTables();
+    }
+
+    function getMensualData(church, monthKey = globalMonth) {
+        if(!church.mensual[monthKey]) {
+            church.mensual[monthKey] = { 
+                entrada: 0, saida: 0, saldo: 0, envio_relatorio: "NÃO", obs_saldo: "", 
+                adjuntos_comprobante_deposito: [], adjuntos_relatorio_fisico: [], 
+                custodio_llave_nombre: "-", custodio_llave_tel: "", adjuntos_llave_foto: [], 
+                custodio_pass_nombre: "-", custodio_pass_tel: "", adjuntos_pass_foto: [], obs_cofre: ""
+            };
+        }
+        return church.mensual[monthKey];
+    }
+
+    async function updateMensualField(churchId, field, elem) {
+        let church = db.find(c => c.id === churchId);
+        let m = getMensualData(church);
+        m[field] = elem.value;
+        if (elem.nextElementSibling && elem.nextElementSibling.classList.contains('print-only')) {
+            elem.nextElementSibling.innerText = field === 'envio_relatorio' ? (elem.value === 'SIM' ? '✅ SIM' : '❌ NÃO') : (elem.value || 'Sem observações');
+        }
+        // Actualizar saldo si es entrada o saida
+        if (field === 'entrada' || field === 'saida') {
+            m.saldo = (parseFloat(m.entrada) || 0) - (parseFloat(m.saida) || 0);
+        }
+        // Upsert en Supabase
+        setSyncStatus('syncing');
+        try {
+            const payload = {
+                church_id:         churchId,
+                month_key:         globalMonth,
+                entrada:           m.entrada || 0,
+                saida:             m.saida || 0,
+                saldo:             m.saldo || 0,
+                envio_relatorio:   m.envio_relatorio || 'NÃO',
+                obs_saldo:         m.obs_saldo || '',
+                custodio_llave_nombre: m.custodio_llave_nombre || '-',
+                custodio_llave_tel:    m.custodio_llave_tel || '',
+                custodio_pass_nombre:  m.custodio_pass_nombre || '-',
+                custodio_pass_tel:     m.custodio_pass_tel || '',
+                obs_cofre:             m.obs_cofre || ''
+            };
+            if (m._supabase_id) {
+                await _supabase.from('monthly_reports').update(payload).eq('id', m._supabase_id);
+            } else {
+                const { data } = await _supabase.from('monthly_reports').upsert(payload, { onConflict: 'church_id,month_key' }).select('id').single();
+                if (data) m._supabase_id = data.id;
+            }
+            setSyncStatus('synced');
+        } catch(err) {
+            setSyncStatus('error');
+            console.error('Error guardando mensual:', err);
+        }
+    }
+
+    function maskMoney(input) {
+        let val = input.value.replace(/\D/g, '');
+        if(val === '') { input.value = ''; return; }
+        val = (parseInt(val) / 100).toFixed(2);
+        val = val.replace('.', ',');
+        val = val.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        input.value = "R$ " + val;
+    }
+    function parseMoney(val) {
+        if(!val) return 0;
+        if(typeof val === 'number') return val;
+        return parseFloat(val.replace('R$ ', '').replace(/\./g, '').replace(',', '.')) || 0;
+    }
+    function fmtMoney(val) { return "R$ " + (val||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function groupDbByCountry(filteredDb) {
+        let groups = {};
+        filteredDb.forEach(c => { let p = c.estado || "Outros"; if(!groups[p]) groups[p] = []; groups[p].push(c); });
+        return groups;
+    }
+
+    function countActiveMembers(church) {
+        return church.miembros_list.filter(m => !['Desligado', 'Expulsado/excluido', 'Fallecido'].includes(m.situacion)).length;
+    }
+
+    function renderAllTables() {
+        let term = document.getElementById("global-search").value.toLowerCase();
+        let filtered = db.filter(c => {
+            let churchText = [c.id, c.pais, c.estado, c.ciudad, c.nombre_iglesia, c.direccion, c.dirigente1_nome, c.financiero1_nome].join(" ").toLowerCase();
+            let matchChurch = churchText.includes(term);
+            
+            let matchMember = false;
+            if (c.miembros_list && c.miembros_list.length > 0) {
+                matchMember = c.miembros_list.some(m => {
+                    let mText = [m.id_miembro, m.nome, m.cpf, m.tel, m.email, m.cargo].join(" ").toLowerCase();
+                    return mText.includes(term);
+                });
+            }
+            
+            if (matchMember && term !== '') {
+                if(!expandedMembersRows.includes(c.id)) expandedMembersRows.push(c.id);
+            }
+
+            return matchChurch || matchMember;
+        });
+        
+        drawModule1(filtered);
+        drawModule2(filtered);
+        drawModule3(filtered);
+        drawModule4(filtered); 
+        drawModule5Report(filtered); 
+    }
+
+    function buildTableBase(data, headers, rowCallback, containerId) {
+        let groups = groupDbByCountry(data);
+        let container = document.getElementById(containerId);
+        container.innerHTML = "";
+        
+        Object.keys(groups).forEach(estado => {
+            let html = `
+                <div class="group-header">${groups[estado][0].pais.includes('Brasil') ? '🇧🇷' : '🌎'} ${estado.toUpperCase()} (${groups[estado].length} Sedes)</div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead><tr>${headers}</tr></thead>
+                        <tbody>`;
+            groups[estado].forEach(c => { html += rowCallback(c); });
+            html += `</tbody></table></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    async function deleteChurch(id) {
+        if(confirm("ATENCIÓN: ¿Estás seguro que deseas ELIMINAR PERMANENTEMENTE esta sede y TODOS sus registros?")) {
+            let church = db.find(c => c.id === id);
+            setSyncStatus('syncing');
+            try {
+                const { error } = await _supabase.from('churches').delete().eq('id', id);
+                if (error) throw error;
+                await logHistory("Sede / Iglesia Eliminada", `Se eliminó por completo la Sede de <b>${church.ciudad}</b> (${church.id}) y todo el registro de sus miembros y finanzas.`, id);
+                db = db.filter(c => c.id !== id);
+                renderAllTables();
+                setSyncStatus('synced');
+                showToast(`Sede ${church.ciudad} eliminada.`, 'warning');
+            } catch(err) {
+                setSyncStatus('error');
+                showToast(`Error al eliminar: ${err.message}`, 'error');
+            }
+        }
+    }
+
+    function drawModule1(data) {
+        buildTableBase(data,
+            `<th>ID Sede / Estado</th><th>Localização / Dados Sede</th><th>Datas (Abert. / Inaug.)</th><th>Horários de Culto</th><th>Dirigentes (Telefones)</th><th>Financeiros (Telefones)</th><th>Ações e Dossiê</th>`,
+            (c) => {
+                let statusBadge = c.estatus_iglesia === 'Abierta' || c.estatus_iglesia === 'Aberta' ? 'badge-success' : 'badge-danger';
+                return `<tr>
+                <td><span class="badge badge-info" style="font-size:12px; font-weight:bold; letter-spacing:0.5px;">${c.id}</span><br><span class="badge ${statusBadge}" style="margin-top:4px;">${c.estatus_iglesia}</span></td>
+                <td><strong style="color:var(--text-dark);">${c.nombre_iglesia}</strong><br><small>${c.estado}</small><br><span style="font-size:11px; color:var(--accent);">${c.direccion}</span></td>
+                <td><small><b>Abertura:</b> ${c.fecha_apertura ? c.fecha_apertura.split('-').reverse().join('/') : '---'}<br><b>Inauguração:</b> ${c.fecha_inauguracion ? c.fecha_inauguracion.split('-').reverse().join('/') : '---'}</small></td>
+                <td><small>${c.dias_culto}</small></td>
+                <td><small><b>1º:</b> ${c.dirigente1_nome} (${c.dirigente1_tel})<br><b>2º:</b> ${c.dirigente2_nome} (${c.dirigente2_tel})</small></td>
+                <td><small><b>1º:</b> ${c.financiero1_nome} (${c.financiero1_tel})<br><b>2º:</b> ${c.financiero2_nome} (${c.financiero2_tel})</small></td>
+                <td style="text-align:center; vertical-align:middle; width: 60px;">
+                    <div class="action-menu">
+                        <button class="menu-dots" onclick="toggleMenu(event, 'menu-church-${c.id}')" title="Opciones">⋮</button>
+                        <div class="menu-dropdown" id="menu-church-${c.id}">
+                            <button onclick="openEditor('${c.id}', 'iglesias')">✏️ Editar Datos Sede</button>
+                            <button onclick="openDossier('${c.id}')">📄 Ver Dossier PDF</button>
+                            <button class="del-btn" onclick="deleteChurch('${c.id}')">🗑️ Eliminar Sede Completa</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+            }, "wrapper-iglesias"
+        );
+    }
+
+    function drawModule2(data) {
+        let groups = groupDbByCountry(data);
+        let container = document.getElementById("wrapper-contratos");
+        container.innerHTML = "";
+        
+        Object.keys(groups).forEach(estado => {
+            let html = `<div class="group-header">${groups[estado][0].pais === 'Brasil' ? '🇧🇷' : '🌎'} ${estado.toUpperCase()} (${groups[estado].length} Sedes)</div>`;
+            groups[estado].forEach(c => {
+                let isAlugado = c.tipo_local === 'Alquilado' || c.tipo_local === 'Alugado';
+                let stContrato = isAlugado ? '📄 Alquiler/Locación' : `🏢 ${c.tipo_local || 'Propio'}`;
+                let valorAluguel = isAlugado ? `<span style="color:var(--danger); font-weight:bold;">${fmtMoney(c.contrato_monto_mensual)}</span>` : '<span style="color:var(--text-muted);">N/A</span>';
+                
+                let pct = 0; let rest = '---';
+                if(c.contrato_inicio && c.contrato_fin) {
+                    let d1 = new Date(c.contrato_inicio); let d2 = new Date(c.contrato_fin); let dn = new Date();
+                    if(d2 > d1 && dn >= d1 && dn <= d2) {
+                        pct = ((dn.getTime() - d1.getTime()) / (d2.getTime() - d1.getTime())) * 100;
+                        rest = Math.ceil((d2.getTime() - dn.getTime()) / (1000 * 3600 * 24 * 30)) + ' meses';
+                    } else if (dn > d2) { pct = 100; rest = 'Vencido'; }
+                }
+
+                html += `
+                <div class="card-row">
+                    <div class="card-header">
+                        <div class="card-title"><span>📍</span> ${c.ciudad} <span class="badge badge-info" style="font-size:10px; margin-left:8px;">${c.id}</span></div>
+                        <button class="btn btn-dark" style="font-size:11px;" onclick="openEditor('${c.id}', 'contratos')">⚙️ Configurar Local/Contrato</button>
+                    </div>
+                    <div class="card-grid">
+                        <div class="card-col">
+                            <h5>Dados do Imóvel</h5>
+                            <div class="card-item"><b>Condición:</b> <span class="badge badge-gray">${stContrato}</span></div>
+                            <div class="card-item"><b>Valor Mensual:</b> ${valorAluguel}</div>
+                            <div class="card-item"><b>Titular:</b> <span>${c.contrato_titular || '---'}</span></div>
+                            ${isAlugado ? `
+                            <div class="contract-duration-box">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span>Vencimiento:</span><span class="time-val">${c.contrato_fin ? c.contrato_fin.split('-').reverse().join('/') : '---'}</span>
+                                </div>
+                                <div style="font-size:11px; margin-top:2px;">Tiempo Restante: <b style="color:${rest==='Vencido'?'var(--danger)':'var(--text-main)'}">${rest}</b></div>
+                                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${pct > 90 ? 'var(--danger)' : 'var(--success)'};"></div></div>
+                            </div>
+                            ` : `<div style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Imóvel próprio. Sem barra de contrato.</div>`}
+                        </div>
+                        <div class="card-col">
+                            <h5>Titulares de Serviços Básicos</h5>
+                            <div class="card-item"><b>💧 Água:</b> <span>${c.titular_agua || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                            <div class="card-item"><b>⚡ Luz:</b> <span>${c.titular_luz || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                            <div class="card-item"><b>🌐 Internet:</b> <span>${c.titular_internet || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                            <div class="card-item"><b>📞 Telefone:</b> <span>${c.titular_telefono || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                            <div style="font-size:11px; margin-top:10px; color:var(--text-muted);"><b>Obs Local:</b> ${c.obs_contrato || 'Nenhuma.'}</div>
+                        </div>
+                        <div class="card-col">
+                            <h5>Anexos e Documentação Visual</h5>
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
+                                <b>📄 Contrato Aluguel</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'contrato_doc')">➕ Enviar</button>
+                            </div>
+                            <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.contrato_doc, {type:'base', churchId:c.id, key:'contrato_doc'})}</div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
+                                <b>🧾 Contas Recentes</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'luz_recibo')">➕ Enviar</button>
+                            </div>
+                            <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.luz_recibo, {type:'base', churchId:c.id, key:'luz_recibo'})}</div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px; border-top:1px dashed #e2e8f0; padding-top:6px;">
+                                <b>📦 Fotos Inventário</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'fotos_inventario')">➕ Enviar</button>
+                            </div>
+                            <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">Resumo: ${c.inventario_bienes || 'Sem inventário descrito'}</div>
+                            <div class="photo-gallery">${renderGallery(c.adjuntos_base.fotos_inventario, {type:'base', churchId:c.id, key:'fotos_inventario'})}</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML += html;
+        });
+    }
+
+    function drawModule3(data) {
+        buildTableBase(data,
+            `<th>Igreja / Sede</th><th>Guardião da Chave</th><th>Guardião da Senha</th><th>Foto Chave / Evidência</th><th>Observação Geral</th><th>Ações</th>`,
+            (c) => {
+                let m = getMensualData(c);
+                return `<tr>
+                    <td><b>${c.ciudad}</b><br><span class="badge badge-gray">${c.id}</span></td>
+                    <td><b>${m.custodio_llave_nombre}</b><br><small>${m.custodio_llave_tel}</small></td>
+                    <td><b>${m.custodio_pass_nombre}</b><br><small>${m.custodio_pass_tel}</small></td>
+                    <td>
+                        <button class="btn btn-dark" style="padding:4px; font-size:10px;" onclick="triggerUploadMensual('${c.id}', 'adjuntos_llave_foto')">📸 Carregar Foto Chave</button>
+                        <div class="photo-gallery">${renderGallery(m.adjuntos_llave_foto, {type:'mensual', churchId:c.id, key:'adjuntos_llave_foto', month:globalMonth})}</div>
+                    </td>
+                    <td><small>${m.obs_cofre || 'Sem novidades.'}</small></td>
+                    <td><button class="btn btn-gray" onclick="openEditor('${c.id}', 'cofres')">✏️ Alterar Guardiões</button></td>
+                </tr>`
+            }, "wrapper-cofres"
+        );
+    }
+
+    function drawModule4(data) {
+        let container = document.getElementById("wrapper-membresia");
+        container.innerHTML = "";
+        
+        let groups = groupDbByCountry(data);
+        
+        Object.keys(groups).forEach(country => {
+            let html = `
+                <div class="group-header">${groups[country][0].pais.includes('Brasil') ? '🇧🇷' : '🌎'} ${country.toUpperCase()} (${groups[country].length} Sedes)</div>
+                <div class="table-wrapper" style="overflow:visible;">
+                    <table class="data-table">
+                        <thead><tr><th>Iglesia / Sede</th><th>Resumen de Fichados</th><th>Acción Principal</th></tr></thead>
+                        <tbody>`;
+            groups[country].forEach(c => {
+                let isExpanded = expandedMembersRows.includes(c.id);
+                let contables = countActiveMembers(c);
+                html += `
+                    <tr style="background:#f8fafc; border-top:2px solid var(--border);">
+                        <td><b>${c.ciudad}</b><br><small>${c.id}</small></td>
+                        <td>
+                            <span class="badge badge-success">${contables} Miembros Activos</span><br>
+                            <small style="color:var(--text-muted); font-size:10px;">${c.miembros_list.length} Registros en Historial</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-dark" onclick="toggleMembersRow('${c.id}')">🔽 Desglosar Miembros</button>
+                            <button class="btn btn-green" onclick="openAddMemberModal('${c.id}')">➕ Nuevo Registro</button>
+                        </td>
+                    </tr>
+                    <tr id="row-members-${c.id}" style="display: ${isExpanded ? 'table-row' : 'none'}; background:white;">
+                        <td colspan="3" style="padding:15px; border-left: 3px solid var(--accent);">
+                            <div id="content-members-${c.id}">
+                                ${isExpanded ? generateExpandedMembersHTML(c.id) : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    function toggleMembersRow(id) {
+        let row = document.getElementById(`row-members-${id}`);
+        let contentDiv = document.getElementById(`content-members-${id}`);
+        
+        if (row.style.display === "none") {
+            row.style.display = "table-row";
+            contentDiv.innerHTML = generateExpandedMembersHTML(id);
+            if(!expandedMembersRows.includes(id)) expandedMembersRows.push(id);
+        } else {
+            row.style.display = "none";
+            expandedMembersRows = expandedMembersRows.filter(x => x !== id);
+        }
+    }
+
+    function getStatusBadge(status) {
+        if(status === 'En comunión activo') return '<span class="badge badge-success">Activo</span>';
+        if(status === 'Inactivo') return '<span class="badge badge-gray">Inactivo</span>';
+        if(status === 'En disciplina') return '<span class="badge badge-warning">En Disciplina</span>';
+        if(status === 'Trasladado') return '<span class="badge badge-info">Trasladado</span>';
+        if(status === 'Desligado') return '<span class="badge badge-danger">Desligado</span>';
+        if(status === 'Expulsado/excluido') return '<span class="badge badge-danger" style="background:#7f1d1d; color:white;">Expulsado</span>';
+        if(status === 'Fallecido') return '<span class="badge badge-dark">Fallecido</span>';
+        return `<span class="badge badge-gray">${status}</span>`;
+    }
+
+    function buildMemberRowHTML(m, idx, churchId) {
+        let hasPic = m.foto_perfil && m.foto_perfil.length > 0;
+        let pPic = hasPic ? m.foto_perfil[0].url : 'https://via.placeholder.com/50?text=Foto';
+        
+        let extrasHtml = "";
+        if(m.situacion === 'En disciplina') {
+            extrasHtml = `<div style="margin-top:6px; padding:6px; background:#fef2f2; border-left:2px solid var(--danger); font-size:10px;">
+                <b>Motivo:</b> ${m.disciplina_motivo || '---'}<br>
+                <b>Por:</b> ${m.disciplina_pastor || '---'} | <b>Tiempo:</b> ${m.disciplina_tiempo || '---'}<br>
+                <b>Desde:</b> ${m.disciplina_inicio ? m.disciplina_inicio.split('-').reverse().join('/') : '---'} <b>Hasta:</b> ${m.disciplina_fin ? m.disciplina_fin.split('-').reverse().join('/') : 'Indefinido'}
+            </div>`;
+        } else if (['Trasladado', 'Desligado', 'Expulsado/excluido', 'Fallecido'].includes(m.situacion)) {
+            extrasHtml = `<div style="margin-top:6px; padding:6px; background:#f8fafc; border-left:2px solid var(--primary); font-size:10px;">
+                <b>Fecha Suceso:</b> ${m.estado_fecha ? m.estado_fecha.split('-').reverse().join('/') : '---'}<br>
+                <b>Obs:</b> ${m.estado_obs || '---'}
+            </div>`;
+        }
+
+        return `<tr>
+            <td style="text-align:center; width:70px;">
+                <img src="${pPic}" class="photo-thumb profile" onclick="triggerUploadMemberProfile('${churchId}', ${idx})" title="Click para cambiar foto">
+                <div style="font-size:9px; color:var(--accent); cursor:pointer; margin-top:4px;" onclick="triggerUploadMemberProfile('${churchId}', ${idx})">Subir Foto</div>
+            </td>
+            <td>
+                <span style="font-size:10px; color:var(--primary); font-weight:bold;">${m.id_miembro}</span><br>
+                <b>${m.nome}</b><br>
+                <small style="color:var(--text-muted);">CPF/Doc: ${m.cpf || '---'}</small>
+            </td>
+            <td>
+                <small>📞 ${m.tel || '---'}</small><br>
+                <small>✉️ ${m.email || '---'}</small>
+            </td>
+            <td>
+                <span class="badge badge-purple">${m.cargo}</span><br>
+                <small style="margin-top:4px; display:inline-block;">Ingresó: ${m.fecha_ingreso ? m.fecha_ingreso.split('-').reverse().join('/') : '---'}</small>
+            </td>
+            <td>
+                ${getStatusBadge(m.situacion)}
+                ${extrasHtml}
+                <div style="max-height: 40px; overflow-y: auto; font-size:10px; margin-top:6px; color:var(--text-muted);"><i>Gral: ${m.observacion || '---'}</i></div>
+            </td>
+            <td>
+                <button class="btn btn-gray" style="padding:2px 6px; font-size:9px; width:100%; margin-bottom:4px;" onclick="triggerUploadMemberFicha('${churchId}', ${idx})">📸 Subir Ficha</button>
+                <div class="photo-gallery" style="justify-content:center;">${renderGallery(m.adjuntos_ficha, {type:'member_ficha', churchId:churchId, key:'ficha', memberIdx:idx})}</div>
+            </td>
+            <td style="text-align:center; vertical-align:middle; width: 60px;">
+                <div class="action-menu">
+                    <button class="menu-dots" onclick="toggleMenu(event, 'menu-member-${churchId}-${idx}')" title="Opciones">⋮</button>
+                    <div class="menu-dropdown" id="menu-member-${churchId}-${idx}">
+                        <button onclick="openEditMemberModal('${churchId}', ${idx})">✏️ Editar Ficha</button>
+                        ${hasPic ? `<button class="del-btn" onclick="deleteFile('member_perfil', '${churchId}', 'perfil', 0, '', ${idx})">🗑️ Eliminar Foto Perfil</button>` : ''}
+                        <button class="del-btn" onclick="removeMember('${churchId}', ${idx})">🗑️ Eliminar Miembro</button>
+                    </div>
+                </div>
+            </td>
+        </tr>`;
+    }
+
+    function generateExpandedMembersHTML(id) {
+        let c = db.find(x => x.id === id);
+        if (c.miembros_list.length === 0) {
+            return `<div style="text-align:center; color:var(--text-muted); padding:20px;">No hay registros en esta sede. Usa el botón "Nuevo Registro".</div>`;
+        }
+        
+        let activos = []; let retirados = []; let fallecidos = [];
+        c.miembros_list.forEach((m, idx) => {
+            if (m.situacion === 'Fallecido') fallecidos.push({m, idx});
+            else if (['Desligado', 'Expulsado/excluido'].includes(m.situacion)) retirados.push({m, idx});
+            else activos.push({m, idx});
+        });
+
+        let theadHTML = `<thead><tr>
+            <th style="text-align:center;">Perfil</th><th>ID & Datos</th><th>Contacto</th><th>Cargo & Ingreso</th><th>Estado y Detalles</th><th>Doc Físico</th><th><center>Acciones</center></th>
+        </tr></thead>`;
+
+        let html = "";
+        
+        if(activos.length > 0) {
+            html += `<div class="sub-table-title">📋 Padrón Activo y Regular (${activos.length})</div>`;
+            html += `<table class="inner-table" style="overflow:visible;">${theadHTML}<tbody>`;
+            activos.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
+            html += `</tbody></table>`;
+        }
+
+        if(retirados.length > 0) {
+            html += `<div class="sub-table-title" style="color:var(--danger); margin-top:20px;">⚠️ Miembros Desligados o Excluidos (${retirados.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(No suman al total)</small></div>`;
+            html += `<table class="inner-table" style="overflow:visible;">${theadHTML}<tbody>`;
+            retirados.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
+            html += `</tbody></table>`;
+        }
+
+        if(fallecidos.length > 0) {
+            html += `<div class="sub-table-title" style="color:var(--text-dark); margin-top:20px;">🖤 Registro de Fallecidos (${fallecidos.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(No suman al total)</small></div>`;
+            html += `<table class="inner-table" style="opacity:0.8; overflow:visible;">${theadHTML}<tbody>`;
+            fallecidos.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
+            html += `</tbody></table>`;
+        }
+        return html;
+    }
+
+    function calcDisciplinaFin() {
+        let inicioStr = document.getElementById('new_mem_disc_inicio').value;
+        let tiempo = document.getElementById('new_mem_disc_tiempo').value;
+        let finInput = document.getElementById('new_mem_disc_fin');
+
+        if (!inicioStr) return; 
+
+        let [y, m, d] = inicioStr.split('-');
+        let endDate = new Date(y, m - 1, d);
+        finInput.readOnly = true; 
+
+        if (tiempo === '1 mes') endDate.setMonth(endDate.getMonth() + 1);
+        else if (tiempo === '2 meses') endDate.setMonth(endDate.getMonth() + 2);
+        else if (tiempo === '3 meses') endDate.setMonth(endDate.getMonth() + 3);
+        else if (tiempo === '4 meses') endDate.setMonth(endDate.getMonth() + 4);
+        else if (tiempo === '5 meses') endDate.setMonth(endDate.getMonth() + 5);
+        else if (tiempo === '6 meses') endDate.setMonth(endDate.getMonth() + 6);
+        else if (tiempo === '1 año') endDate.setFullYear(endDate.getFullYear() + 1);
+        else if (tiempo === '2 años') endDate.setFullYear(endDate.getFullYear() + 2);
+        else if (tiempo === 'Indefinido') { finInput.value = ''; return; }
+        else if (tiempo === 'Otro') { finInput.readOnly = false; finInput.value = ''; return; }
+
+        let yyyy = endDate.getFullYear();
+        let mm = String(endDate.getMonth() + 1).padStart(2, '0');
+        let dd = String(endDate.getDate()).padStart(2, '0');
+        finInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    function toggleMemberStatusFields() {
+        let val = document.getElementById('new_mem_situacion').value;
+        let dDisc = document.getElementById('fields_disciplina');
+        let dFec = document.getElementById('fields_estado_fecha');
+        let lFec = document.getElementById('label_estado_fecha');
+
+        dDisc.style.display = 'none';
+        dFec.style.display = 'none';
+
+        if(val === 'En disciplina') {
+            dDisc.style.display = 'block';
+            let inicioInput = document.getElementById('new_mem_disc_inicio');
+            if(!inicioInput.value) {
+                let today = new Date();
+                inicioInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            }
+            if(document.getElementById('edit-mem-idx').value === "") {
+                document.getElementById('new_mem_disc_tiempo').value = "1 mes";
+                calcDisciplinaFin();
+            }
+        } else if (['Trasladado', 'Desligado', 'Expulsado/excluido', 'Fallecido'].includes(val)) {
+            dFec.style.display = 'block';
+            if(val === 'Trasladado') lFec.innerText = 'Fecha de Traslado';
+            if(val === 'Desligado') lFec.innerText = 'Fecha de Retiro';
+            if(val === 'Expulsado/excluido') lFec.innerText = 'Fecha de Expulsión';
+            if(val === 'Fallecido') lFec.innerText = 'Fecha de Fallecimiento';
+        }
+    }
+
+    function openAddMemberModal(churchId) {
+        document.getElementById('new-mem-church-id').value = churchId;
+        document.getElementById('edit-mem-idx').value = ""; 
+        document.getElementById('modal-member-title').innerText = "➕ Añadir Nuevo Registro Ministerial";
+
+        document.getElementById('new_mem_nome').value = "";
+        document.getElementById('new_mem_cpf').value = "";
+        document.getElementById('new_mem_tel').value = "";
+        document.getElementById('new_mem_email').value = "";
+        document.getElementById('new_mem_fecha').value = "";
+        document.getElementById('new_mem_obs').value = "";
+        document.getElementById('new_mem_cargo').value = "Miembro";
+        
+        document.getElementById('new_mem_situacion').value = "En comunión activo";
+        document.getElementById('new_mem_disc_motivo').value = "";
+        document.getElementById('new_mem_disc_pastor').value = "";
+        document.getElementById('new_mem_disc_inicio').value = "";
+        document.getElementById('new_mem_disc_fin').value = "";
+        document.getElementById('new_mem_estado_fecha').value = "";
+        document.getElementById('new_mem_estado_obs').value = "";
+        
+        toggleMemberStatusFields();
+        document.getElementById('add-member-modal').style.display = "flex";
+    }
+
+    function openEditMemberModal(churchId, idx) {
+        let church = db.find(c => c.id === churchId);
+        let m = church.miembros_list[idx];
+        
+        document.getElementById('new-mem-church-id').value = churchId;
+        document.getElementById('edit-mem-idx').value = idx; 
+        document.getElementById('modal-member-title').innerText = "✏️ Editar Registro Ministerial / Membresía";
+        
+        document.getElementById('new_mem_nome').value = m.nome || "";
+        document.getElementById('new_mem_cpf').value = m.cpf || "";
+        document.getElementById('new_mem_tel').value = m.tel || "";
+        document.getElementById('new_mem_email').value = m.email || "";
+        document.getElementById('new_mem_cargo').value = m.cargo || "Miembro";
+        document.getElementById('new_mem_fecha').value = m.fecha_ingreso || "";
+        
+        document.getElementById('new_mem_situacion').value = m.situacion || "En comunión activo";
+        document.getElementById('new_mem_disc_motivo').value = m.disciplina_motivo || "";
+        document.getElementById('new_mem_disc_pastor').value = m.disciplina_pastor || "";
+        document.getElementById('new_mem_disc_tiempo').value = m.disciplina_tiempo || "1 mes";
+        document.getElementById('new_mem_disc_inicio').value = m.disciplina_inicio || "";
+        document.getElementById('new_mem_disc_fin').value = m.disciplina_fin || "";
+        
+        document.getElementById('new_mem_estado_fecha').value = m.estado_fecha || "";
+        document.getElementById('new_mem_estado_obs').value = m.estado_obs || "";
+        document.getElementById('new_mem_obs').value = m.observacion || "";
+        
+        toggleMemberStatusFields();
+        document.getElementById('add-member-modal').style.display = "flex";
+    }
+
+    async function saveNewMember() {
+        let id  = document.getElementById('new-mem-church-id').value;
+        let idx = document.getElementById('edit-mem-idx').value;
+        let church = db.find(c => c.id === id);
+        let nome = document.getElementById('new_mem_nome').value;
+        if (!nome) return alert("El nombre del miembro es obligatorio.");
+        
+        let mData = {
+            nome, cpf: document.getElementById('new_mem_cpf').value,
+            tel: document.getElementById('new_mem_tel').value,
+            email: document.getElementById('new_mem_email').value,
+            cargo: document.getElementById('new_mem_cargo').value,
+            fecha_ingreso: document.getElementById('new_mem_fecha').value,
+            situacion: document.getElementById('new_mem_situacion').value,
+            disciplina_motivo: document.getElementById('new_mem_disc_motivo').value,
+            disciplina_pastor: document.getElementById('new_mem_disc_pastor').value,
+            disciplina_tiempo: document.getElementById('new_mem_disc_tiempo').value,
+            disciplina_inicio: document.getElementById('new_mem_disc_inicio').value,
+            disciplina_fin: document.getElementById('new_mem_disc_fin').value,
+            estado_fecha: document.getElementById('new_mem_estado_fecha').value,
+            estado_obs: document.getElementById('new_mem_estado_obs').value,
+            observacion: document.getElementById('new_mem_obs').value
+        };
+
+        setSyncStatus('syncing');
+        try {
+            if (idx !== "") {
+                // EDITAR miembro existente
+                let mem = church.miembros_list[idx];
+                Object.assign(mem, mData);
+                if (mem._supabase_id) {
+                    const { error } = await _supabase.from('members').update({
+                        nome: mData.nome, cpf: mData.cpf, tel: mData.tel, email: mData.email,
+                        cargo: mData.cargo, fecha_ingreso: mData.fecha_ingreso || null,
+                        situacion: mData.situacion,
+                        disc_motivo: mData.disciplina_motivo, disc_pastor: mData.disciplina_pastor,
+                        disc_tiempo: mData.disciplina_tiempo,
+                        disc_inicio: mData.disciplina_inicio || null, disc_fin: mData.disciplina_fin || null,
+                        estado_fecha: mData.estado_fecha || null, estado_obs: mData.estado_obs, obs: mData.observacion
+                    }).eq('id', mem._supabase_id);
+                    if (error) throw error;
+                }
+            } else {
+                // NUEVO miembro
+                let pStr = (church.pais || "XX").substring(0,2).toUpperCase();
+                let eStr = (church.estado || "XX").substring(0,2).toUpperCase();
+                let cStr = (church.ciudad || "XXX").substring(0,3).toUpperCase();
+                let randomNum = Math.floor(1000 + Math.random() * 9000);
+                let idMiembro = `${pStr}${eStr}-${cStr}-${randomNum}`;
+
+                const { data: inserted, error } = await _supabase.from('members').insert({
+                    church_id: id, id_miembro: idMiembro,
+                    nome: mData.nome, cpf: mData.cpf, tel: mData.tel, email: mData.email,
+                    cargo: mData.cargo, fecha_ingreso: mData.fecha_ingreso || null,
+                    situacion: mData.situacion,
+                    disc_motivo: mData.disciplina_motivo, disc_pastor: mData.disciplina_pastor,
+                    disc_tiempo: mData.disciplina_tiempo,
+                    disc_inicio: mData.disciplina_inicio || null, disc_fin: mData.disciplina_fin || null,
+                    estado_fecha: mData.estado_fecha || null, estado_obs: mData.estado_obs, obs: mData.observacion
+                }).select('id').single();
+                if (error) throw error;
+
+                mData.id_miembro    = idMiembro;
+                mData._supabase_id  = inserted.id;
+                mData.foto_perfil   = [];
+                mData.adjuntos_ficha = [];
+                church.miembros_list.push(mData);
+            }
+
+            closeModal('add-member-modal');
+            if (!expandedMembersRows.includes(id)) expandedMembersRows.push(id);
+            document.getElementById(`content-members-${id}`).innerHTML = generateExpandedMembersHTML(id);
+            renderAllTables();
+            setSyncStatus('synced');
+            showToast('✅ Miembro guardado.', 'success');
+        } catch(err) {
+            setSyncStatus('error');
+            showToast(`Error al guardar miembro: ${err.message}`, 'error');
+        }
+    }
+
+    async function removeMember(churchId, idx) {
+        if (confirm("¿Borrar definitivamente este registro físico del sistema? Esta acción no se puede deshacer.")) {
+            let church = db.find(c => c.id === churchId);
+            let mem = church.miembros_list[idx];
+            setSyncStatus('syncing');
+            try {
+                if (mem._supabase_id) {
+                    const { error } = await _supabase.from('members').delete().eq('id', mem._supabase_id);
+                    if (error) throw error;
+                }
+                await logHistory("Registro de Membresía", `Se eliminó definitivamente al miembro <b>${mem.nome}</b> (${mem.id_miembro}) perteneciente a la sede de ${church.ciudad}.`, churchId);
+                church.miembros_list.splice(idx, 1);
+                document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
+                renderAllTables();
+                setSyncStatus('synced');
+                showToast(`Miembro ${mem.nome} eliminado.`, 'warning');
+            } catch(err) {
+                setSyncStatus('error');
+                showToast(`Error al eliminar miembro: ${err.message}`, 'error');
+            }
+        }
+    }
+
+    function setModoM5(modo) {
+        modoM5 = modo;
+        document.getElementById("btn-modo-mensual").style.background = modo === 'mensual' ? 'var(--primary)' : '#64748b';
+        document.getElementById("btn-modo-historico").style.background = modo === 'historico' ? 'var(--primary)' : '#64748b';
+        renderAllTables();
+    }
+
+    function getPastMonthKey(current, offset) {
+        if (!current) return "2024-01";
+        let [y, m] = current.split('-').map(Number);
+        m -= offset;
+        while(m <= 0) { m += 12; y -= 1; }
+        return `${y}-${String(m).padStart(2,'0')}`;
+    }
+
+    function drawModule5Report(filteredDb) {
+        let ent = 0, sai = 0;
+        filteredDb.forEach(c => { let m = getMensualData(c); ent += (m.entrada||0); sai += (m.saida||0); });
+        
+        document.getElementById("dash-tot-churches").innerText = filteredDb.length;
+        document.getElementById("dash-entradas").innerText = fmtMoney(ent);
+        document.getElementById("dash-saidas").innerText = fmtMoney(sai);
+        document.getElementById("dash-saldo").innerText = fmtMoney(ent - sai);
+
+        let groups = groupDbByCountry(filteredDb);
+        let wrapper = document.getElementById("master-report-area");
+        wrapper.innerHTML = "";
+
+        if (modoM5 === 'mensual') {
+            Object.keys(groups).forEach(estado => {
+                let html = `<div class="group-header">📊 RELATÓRIO MENSAL (${globalMonth}) - ${estado.toUpperCase()}</div>`;
+                html += `<div class="table-wrapper"><table class="data-table" style="width:100%;"><thead><tr>`;
+                html += `<th>País, Estado e Cidade</th><th>Nome da Sede e ID</th><th>Liderança e Membros</th><th>Movimentos</th><th>Saldo, Comprovante e Observação</th><th>Enviou Relatório (SIM/NÃO)</th>`;
+                html += `</tr></thead><tbody>`;
+
+                groups[estado].forEach(c => {
+                    let m = getMensualData(c);
+                    html += `<tr>`;
+                    html += `<td><small><b>País:</b> ${c.pais}</small><br><small><b>Estado:</b> ${c.estado}</small><br><small><b>Cidade:</b> ${c.ciudad}</small></td>`;
+                    html += `<td><strong>${c.nombre_iglesia}</strong><br><small style="color:var(--accent); font-weight:bold;">${c.id}</small></td>`;
+                    html += `<td><small><b>Pastor:</b> ${c.dirigente1_nome}</small><br><small><b>Financeiro:</b> ${c.financiero1_nome}</small><br><small style="color:var(--success); font-weight:bold;">Membros: ${countActiveMembers(c)}</small></td>`;
+                    html += `<td><span style="color:var(--success); font-size:12px; font-weight:bold;">Entrada: ${fmtMoney(m.entrada)}</span><br><span style="color:var(--danger); font-size:12px; font-weight:bold;">Saída: ${fmtMoney(m.saida)}</span></td>`;
+                    html += `<td>
+                        <div style="font-weight:bold; font-size:14px; color:${m.saldo >= 0 ? 'green' : 'red'}; margin-bottom:5px;">Saldo: ${fmtMoney(m.saldo)}</div>
+                        <textarea class="no-print" onchange="updateMensualField('${c.id}', 'obs_saldo', this)" placeholder="Adicionar observação editável..." style="width:100%; font-size:11px; padding:4px; margin-bottom:6px; border:1px solid #cbd5e1; border-radius:4px;">${m.obs_saldo || ''}</textarea>
+                        <div class="print-only" style="font-size:11px; margin-bottom:6px;"><i>${m.obs_saldo || 'Sem observações'}</i></div>
+                        <button class="btn btn-gray no-print" style="padding:4px 8px; font-size:10px; width:100%;" onclick="triggerUploadMensual('${c.id}', 'adjuntos_comprobante_deposito')">📸 Enviar Comprovante</button>
+                        <div class="photo-gallery">${renderGallery(m.adjuntos_comprobante_deposito, {type:'mensual', churchId:c.id, key:'adjuntos_comprobante_deposito', month:globalMonth})}</div>
+                    </td>`;
+                    html += `<td>
+                        <select class="no-print" onchange="updateMensualField('${c.id}', 'envio_relatorio', this)" style="width:100%; font-size:12px; padding:4px; font-weight:bold; margin-bottom:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                            <option value="NÃO" ${m.envio_relatorio==='NÃO'?'selected':''}>NÃO</option>
+                            <option value="SIM" ${m.envio_relatorio==='SIM'?'selected':''}>SIM</option>
+                        </select>
+                        <div class="print-only" style="font-size:12px; font-weight:bold; margin-bottom:6px;">${m.envio_relatorio==='SIM'?'✅ SIM':'❌ NÃO'}</div>
+                        <button class="btn btn-gray no-print" style="padding:4px 8px; font-size:10px; width:100%;" onclick="triggerUploadMensual('${c.id}', 'adjuntos_relatorio_fisico')">📸 Enviar Relatório</button>
+                        <div class="photo-gallery">${renderGallery(m.adjuntos_relatorio_fisico, {type:'mensual', churchId:c.id, key:'adjuntos_relatorio_fisico', month:globalMonth})}</div>
+                    </td>`;
+                    html += `</tr>`;
+                });
+                html += `</tbody></table></div>`;
+                wrapper.innerHTML += html;
+            });
+        } else {
+            let m_0 = globalMonth; let m_1 = getPastMonthKey(globalMonth, 1); let m_2 = getPastMonthKey(globalMonth, 2);
+            Object.keys(groups).forEach(estado => {
+                let html = `<div class="group-header" style="background:#475569;">📅 HISTÓRICO GLOBAL 3 MESES - ${estado.toUpperCase()}</div>`;
+                html += `<div class="table-wrapper"><table class="data-table" style="width:100%;"><thead><tr><th>Localização e Sede</th><th>Mês ${m_2}</th><th>Mês ${m_1}</th><th style="background:#e2e8f0;">Mês Atual (${m_0})</th></tr></thead><tbody>`;
+                groups[estado].forEach(c => {
+                    let d0 = getMensualData(c, m_0); let d1 = getMensualData(c, m_1); let d2 = getMensualData(c, m_2);
+                    let drawMonthData = (mDat) => `<div style="font-size:11px; margin-bottom:2px;"><span style="color:var(--success);">Entrada: ${fmtMoney(mDat.entrada)}</span></div><div style="font-size:11px; margin-bottom:4px;"><span style="color:var(--danger);">Saída: ${fmtMoney(mDat.saida)}</span></div><div style="font-size:12px; font-weight:bold; color:${mDat.saldo>=0?'green':'red'}; padding-top:4px; border-top:1px dashed #cbd5e1;">Saldo: ${fmtMoney(mDat.saldo)}</div>`;
+                    html += `<tr><td><strong>${c.nombre_iglesia}</strong><br><small style="color:var(--text-muted);">${c.estado} - ${c.ciudad}</small></td><td>${drawMonthData(d2)}</td><td>${drawMonthData(d1)}</td><td style="background:#f8fafc;">${drawMonthData(d0)}</td></tr>`;
+                });
+                html += `</tbody></table></div>`;
+                wrapper.innerHTML += html;
+            });
+        }
+    }
+
+    function openDossier(id) {
+        let c = db.find(x => x.id === id);
+        let content = `
+            <div class="dossier-card">
+                <h2 style="text-align:center; color:var(--primary); margin-bottom:20px; border-bottom:2px solid var(--accent); padding-bottom:10px;">FICHA TÉCNICA E ADMINISTRATIVA</h2>
+                <div class="dossier-line"><div class="dossier-label">ID ÚNICO IPDD:</div><div class="dossier-value" style="font-weight:bold; font-size:14px; color:var(--accent);">${c.id}</div></div>
+                <div class="dossier-line"><div class="dossier-label">NOME DA SEDE:</div><div class="dossier-value">${c.nombre_iglesia}</div></div>
+                <div class="dossier-line"><div class="dossier-label">PAÍS E REGIÃO:</div><div class="dossier-value">${c.pais} - ${c.estado}</div></div>
+                <div class="dossier-line"><div class="dossier-label">CIDADE:</div><div class="dossier-value">${c.ciudad}</div></div>
+                <div class="dossier-line"><div class="dossier-label">ENDEREÇO FÍSICO:</div><div class="dossier-value">${c.direccion}</div></div>
+                <div class="dossier-line"><div class="dossier-label">STATUS ATUAL:</div><div class="dossier-value"><b style="color:var(--accent);">${c.estatus_iglesia.toUpperCase()}</b></div></div>
+                <div class="dossier-line"><div class="dossier-label">MEMBRESIA TOTAL:</div><div class="dossier-value"><b style="color:var(--success);">${countActiveMembers(c)} Ativos</b></div></div>
+                <div class="dossier-line"><div class="dossier-label">DATA ABERTURA / INAUGURAÇÃO:</div><div class="dossier-value">Abertura: ${c.fecha_apertura ? c.fecha_apertura.split('-').reverse().join('/') : 'Não definida'} | Inauguração: ${c.fecha_inauguracion ? c.fecha_inauguracion.split('-').reverse().join('/') : 'Não definida'}</div></div>
+                <div class="dossier-line"><div class="dossier-label">DIAS E HORÁRIOS DE CULTO:</div><div class="dossier-value">${c.dias_culto}</div></div>
+                
+                <h3 style="margin-top:25px; color:var(--accent); font-size:16px; margin-bottom:10px;">LIDERANÇA E DEPARTAMENTO FINANCEIRO</h3>
+                <div class="dossier-line"><div class="dossier-label">1º Dirigente (Pastor):</div><div class="dossier-value">${c.dirigente1_nome} <b>(Tel: ${c.dirigente1_tel})</b></div></div>
+                <div class="dossier-line"><div class="dossier-label">1º Financeiro(a):</div><div class="dossier-value">${c.financiero1_nome} <b>(Tel: ${c.financiero1_tel})</b></div></div>
+                
+                <h3 style="margin-top:25px; color:var(--accent); font-size:16px; margin-bottom:10px;">INFORMAÇÕES DO IMÓVEL</h3>
+                <div class="dossier-line"><div class="dossier-label">Condição do Local:</div><div class="dossier-value">${c.tipo_local || 'Alugado'}</div></div>
+                
+                <h3 style="margin-top:25px; color:var(--accent); font-size:16px; margin-bottom:10px;">HISTÓRICO FINANCEIRO (Últimos 12 meses)</h3>
+                <table class="dossier-finance-table" style="width:100%; font-size:12px; border-collapse: collapse; margin-top:10px;">
+                    <thead><tr>
+                        <th style="padding:8px; border:1px solid #cbd5e1; background:#f8fafc; text-align:left;">Mês Reportado</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; background:#f8fafc; text-align:left;">Entradas</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; background:#f8fafc; text-align:left;">Saídas</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; background:#f8fafc; text-align:left;">Saldo Líquido</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; background:#f8fafc; text-align:left;">Estado Relatório</th>
+                    </tr></thead><tbody>`;
+
+        let allKeys = Object.keys(c.mensual).sort().reverse();
+        let keysToShow = allKeys.slice(0, 12);
+        keysToShow.forEach(mk => {
+            let m = c.mensual[mk];
+            content += `<tr>
+                <td style="padding:6px; border:1px solid #e2e8f0;"><b>${mk}</b></td>
+                <td style="padding:6px; border:1px solid #e2e8f0; color:var(--success);">${fmtMoney(m.entrada)}</td>
+                <td style="padding:6px; border:1px solid #e2e8f0; color:var(--danger);">${fmtMoney(m.saida)}</td>
+                <td style="padding:6px; border:1px solid #e2e8f0; font-weight:bold; color:${m.saldo>=0?'green':'red'};">${fmtMoney(m.saldo)}</td>
+                <td style="padding:6px; border:1px solid #e2e8f0;">${m.envio_relatorio==='SIM'?'SIM Enviado':'NÃO Enviado'}</td>
+            </tr>`;
+        });
+        content += `</tbody></table></div>`; 
+        document.getElementById("dossier-body").innerHTML = content;
+        document.getElementById("dossier-modal").style.display = "flex";
+    }
+
+    function populatePaisesList() {
+        let dataList = document.getElementById('paises_list');
+        dataList.innerHTML = '';
+        let paisesUnicos = [...new Set(db.map(c => c.pais))];
+        paisesUnicos.forEach(p => { let opt = document.createElement('option'); opt.value = p; dataList.appendChild(opt); });
+    }
+
+    function updateStatesList() {
+        let pais = document.getElementById('add_pais').value;
+        let dataList = document.getElementById('estados_list');
+        dataList.innerHTML = '';
+        let estadosPais = [...new Set(db.filter(c => c.pais === pais).map(c => c.estado))];
+        estadosPais.forEach(est => { let opt = document.createElement('option'); opt.value = est; dataList.appendChild(opt); });
+        if(pais === 'Perú') document.getElementById('add_cel_pastor').value = "+51 "; else document.getElementById('add_cel_pastor').value = "+55 ";
+        generateDynamicID();
+    }
+
+    function generateDynamicID() {
+        let pais = document.getElementById('add_pais').value.trim();
+        let estado = document.getElementById('add_estado').value.trim();
+        let idInput = document.getElementById('add_id');
+        if(!pais || !estado) { idInput.value = ""; return; }
+        let countryCode = getCountryCode(pais);
+        let stateCode = getStateAbbr(pais, estado);
+        let prefixKey = `${countryCode} ${stateCode}`;
+        let highestNum = 0;
+        db.forEach(c => {
+            if(c.id.startsWith(prefixKey + "-")) {
+                let parts = c.id.split('-');
+                if(parts.length > 1) { let num = parseInt(parts[1], 10); if(!isNaN(num) && num > highestNum) highestNum = num; }
+            }
+        });
+        idInput.value = `${prefixKey}-${String(highestNum + 1).padStart(3, '0')}`;
+    }
+
+    function openAddChurchModal() {
+        populatePaisesList();
+        document.getElementById('add_pais').value = "Brasil";
+        document.getElementById('add_estado').value = ""; document.getElementById('add_id').value = "";
+        document.getElementById('add_cidade').value = ""; document.getElementById('add_endereco').value = "";
+        document.getElementById('add_pastor').value = "";
+        updateStatesList(); 
+        document.getElementById('add-church-modal').style.display = "flex";
+    }
+
+    async function submitNewChurch() {
+        let nPais    = document.getElementById('add_pais').value.trim();
+        let nEstado  = document.getElementById('add_estado').value.trim();
+        let nCidade  = document.getElementById('add_cidade').value.trim();
+        let nEndereco = document.getElementById('add_endereco').value;
+        let nPastor  = document.getElementById('add_pastor').value;
+        let nTel     = document.getElementById('add_cel_pastor').value;
+        let nId      = document.getElementById('add_id').value;
+
+        if (!nPais || !nEstado || !nCidade || !nId) return alert("País, Estado, Ciudad e ID son obligatorios.");
+        if (db.some(c => c.id === nId)) return alert(`El ID ${nId} ya existe.`);
+
+        setSyncStatus('syncing');
+        try {
+            const newChurchData = {
+                id: nId, pais: nPais, estado: nEstado, ciudad: nCidade,
+                nombre_iglesia: `IPDD ${nCidade}`, direccion: nEndereco,
+                email_iglesia: `contato.${nCidade.toLowerCase().replace(/ /g,'')}@ipddglobal.org`,
+                estatus_iglesia: "Abierta", dias_culto: "Martes, Jueves y Domingo a las 19:30h",
+                dirigente1_nome: nPastor, dirigente1_tel: nTel,
+                dirigente2_nome: "No asignado", dirigente2_tel: nTel,
+                financiero1_nome: "No asignado", financiero1_tel: nTel,
+                financiero2_nome: "No asignado", financiero2_tel: nTel,
+                tipo_local: "Alquilado", contrato_estado: "Sin Contrato",
+                contrato_monto_mensual: 0
+            };
+
+            const { error } = await _supabase.from('churches').insert(newChurchData);
+            if (error) throw error;
+
+            // Actualizar contador en Supabase
+            const countryCode = getCountryCode(nPais);
+            const stateCode   = getStateAbbr(nPais, nEstado);
+            const prefixKey   = `${countryCode} ${stateCode}`;
+            await _supabase.from('id_counters').upsert(
+                { prefix_key: prefixKey, last_number: parseInt(nId.split('-').pop()) },
+                { onConflict: 'prefix_key' }
+            );
+
+            // Agregar a db[] local
+            let newChurch = {
+                ...newChurchData,
+                fecha_apertura: '', fecha_inauguracion: '', obs_iglesia: '',
+                obs_contrato: '', contrato_titular: '',
+                contrato_inicio: '', contrato_fin: '',
+                titular_agua: '', titular_luz: '', titular_internet: '', titular_telefono: '',
+                inventario_bienes: '', obs_inventario: '',
+                mensual: {}, miembros_list: [],
+                adjuntos_base: { contrato_doc: [], agua_recibo: [], luz_recibo: [], internet_recibo: [], telefono_recibo: [], fotos_inventario: [] }
+            };
+            db.push(newChurch);
+
+            await logHistory("Nueva Sede Registrada", `Se registró la nueva sede de <b>${nCidade}</b> con ID ${nId}.`, nId);
+            closeModal('add-church-modal');
+            renderAllTables();
+            setSyncStatus('synced');
+            showToast(`✅ Sede ${nCidade} (${nId}) registrada exitosamente.`, 'success');
+        } catch(err) {
+            setSyncStatus('error');
+            showToast(`Error al guardar: ${err.message}`, 'error');
+        }
+    }
+
+    function openEditor(id, tab) {
+        let church = db.find(c => c.id === id);
+        let m = getMensualData(church);
+        document.getElementById("edit-id").value = id;
+        document.getElementById("edit-tab").value = tab;
+        
+        let html = '<div class="form-grid">';
+        if(tab === 'iglesias') {
+            html += fSel('Status de la Sede', 'estatus_iglesia', church.estatus_iglesia, ['Abierta', 'Cerrada', 'Aberta', 'Fechada']);
+            html += fInp('País', 'pais', church.pais);
+            html += fInp('Estado / Depto', 'estado', church.estado);
+            html += fInp('Ciudad', 'ciudad', church.ciudad);
+            html += fInp('Fecha de Apertura', 'fecha_apertura', church.fecha_apertura, 'date');
+            html += fInp('Fecha de Inauguración', 'fecha_inauguracion', church.fecha_inauguracion, 'date');
+            html += `<div class="form-group full"><label>Observación General (Iglesia)</label><textarea id="edit_obs_iglesia">${church.obs_iglesia||''}</textarea></div>`;
+            html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
+            html += fInp('Nombre IPDD', 'nombre_iglesia', church.nombre_iglesia);
+            html += `<div class="form-group full"><label>Dirección Física</label><input type="text" id="edit_direccion" value="${church.direccion}"></div>`;
+            html += fInp('Días y Horarios Culto', 'dias_culto', church.dias_culto);
+            html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
+            html += fInp('1º Dirigente (Nombre)', 'dirigente1_nome', church.dirigente1_nome);
+            html += fInp('1º Dirigente (Teléfono)', 'dirigente1_tel', church.dirigente1_tel);
+            html += fInp('2º Dirigente (Nombre)', 'dirigente2_nome', church.dirigente2_nome);
+            html += fInp('2º Dirigente (Teléfono)', 'dirigente2_tel', church.dirigente2_tel);
+            html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
+            html += fInp('1º Financiero (Nombre)', 'financiero1_nome', church.financiero1_nome);
+            html += fInp('1º Financiero (Teléfono)', 'financiero1_tel', church.financiero1_tel);
+            html += fInp('2º Financiero (Nombre)', 'financiero2_nome', church.financiero2_nome);
+            html += fInp('2º Financiero (Teléfono)', 'financiero2_tel', church.financiero2_tel);
+        } else if(tab === 'contratos') {
+            html += fSel('Condición del Local', 'tipo_local', church.tipo_local || 'Alquilado', ['Propio', 'Prestado', 'Donado', 'Alquilado', 'Alugado']);
+            html += fInp('Titular del Contrato', 'contrato_titular', church.contrato_titular);
+            html += fInp('Fecha Inicio Alquiler', 'contrato_inicio', church.contrato_inicio, 'date');
+            html += fInp('Fecha Fin Alquiler', 'contrato_fin', church.contrato_fin, 'date');
+            html += `<div class="form-group"><label>Valor Mensual Alquiler</label><input type="text" id="edit_contrato_monto_mensual" value="${fmtMoney(church.contrato_monto_mensual)}" oninput="maskMoney(this)"></div>`;
+            html += `<div class="form-group full"><label>Observación del Contrato/Local</label><textarea id="edit_obs_contrato">${church.obs_contrato||''}</textarea></div>`;
+            html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
+            html += `<h4 style="grid-column:1/-1; color:var(--primary); margin-bottom:5px;">Servicios Básicos (Registro de Titulares)</h4>`;
+            html += fInp('Titular de Agua', 'titular_agua', church.titular_agua);
+            html += fInp('Titular de Luz', 'titular_luz', church.titular_luz);
+            html += fInp('Titular de Internet', 'titular_internet', church.titular_internet);
+            html += fInp('Titular de Teléfono', 'titular_telefono', church.titular_telefono);
+            html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
+            html += fInp('Inventario Resumido', 'inventario_bienes', church.inventario_bienes, 'text', true);
+            html += `<div class="form-group full"><label>Observación del Inventario</label><textarea id="edit_obs_inventario">${church.obs_inventario||''}</textarea></div>`;
+        } else if(tab === 'cofres') {
+            html += fInp('Guardián de la Llave (Nombre)', 'custodio_llave_nombre', m.custodio_llave_nombre);
+            html += fInp('Guardián de la Llave (Teléfono)', 'custodio_llave_tel', m.custodio_llave_tel);
+            html += fInp('Guardián de la Contraseña (Nombre)', 'custodio_pass_nombre', m.custodio_pass_nombre);
+            html += fInp('Guardián de la Contraseña (Teléfono)', 'custodio_pass_tel', m.custodio_pass_tel);
+            html += `<div class="form-group full"><label>Observación General del Cofre</label><textarea id="edit_obs_cofre">${m.obs_cofre||''}</textarea></div>`;
+        }
+        html += '</div>';
+        
+        document.getElementById("dynamic-form-area").innerHTML = html;
+        document.getElementById("editor-modal").style.display = "flex";
+    }
+
+    async function saveData() {
+        let id  = document.getElementById("edit-id").value;
+        let tab = document.getElementById("edit-tab").value;
+        let church = db.find(c => c.id === id);
+        let m = getMensualData(church);
+
+        setSyncStatus('syncing');
+        try {
+            if (tab === 'iglesias') {
+                church.estatus_iglesia = document.getElementById('edit_estatus_iglesia').value;
+                church.pais           = document.getElementById('edit_pais').value.trim();
+                church.estado         = document.getElementById('edit_estado').value.trim();
+                church.ciudad         = document.getElementById('edit_ciudad').value;
+                church.fecha_apertura = document.getElementById('edit_fecha_apertura').value;
+                church.fecha_inauguracion = document.getElementById('edit_fecha_inauguracion').value;
+                church.obs_iglesia    = document.getElementById('edit_obs_iglesia').value;
+                church.nombre_iglesia = document.getElementById('edit_nombre_iglesia').value;
+                church.direccion      = document.getElementById('edit_direccion').value;
+                church.dias_culto     = document.getElementById('edit_dias_culto').value;
+                church.dirigente1_nome = document.getElementById('edit_dirigente1_nome').value;
+                church.dirigente1_tel  = document.getElementById('edit_dirigente1_tel').value;
+                church.dirigente2_nome = document.getElementById('edit_dirigente2_nome').value;
+                church.dirigente2_tel  = document.getElementById('edit_dirigente2_tel').value;
+                church.financiero1_nome = document.getElementById('edit_financiero1_nome').value;
+                church.financiero1_tel  = document.getElementById('edit_financiero1_tel').value;
+                church.financiero2_nome = document.getElementById('edit_financiero2_nome').value;
+                church.financiero2_tel  = document.getElementById('edit_financiero2_tel').value;
+
+                const { error } = await _supabase.from('churches').update({
+                    estatus_iglesia: church.estatus_iglesia, pais: church.pais, estado: church.estado,
+                    ciudad: church.ciudad, fecha_apertura: church.fecha_apertura || null,
+                    fecha_inauguracion: church.fecha_inauguracion || null, obs_iglesia: church.obs_iglesia,
+                    nombre_iglesia: church.nombre_iglesia, direccion: church.direccion,
+                    dias_culto: church.dias_culto,
+                    dirigente1_nome: church.dirigente1_nome, dirigente1_tel: church.dirigente1_tel,
+                    dirigente2_nome: church.dirigente2_nome, dirigente2_tel: church.dirigente2_tel,
+                    financiero1_nome: church.financiero1_nome, financiero1_tel: church.financiero1_tel,
+                    financiero2_nome: church.financiero2_nome, financiero2_tel: church.financiero2_tel
+                }).eq('id', id);
+                if (error) throw error;
+
+            } else if (tab === 'contratos') {
+                church.tipo_local             = document.getElementById('edit_tipo_local').value;
+                church.contrato_titular       = document.getElementById('edit_contrato_titular').value;
+                church.contrato_inicio        = document.getElementById('edit_contrato_inicio').value;
+                church.contrato_fin           = document.getElementById('edit_contrato_fin').value;
+                church.contrato_monto_mensual = parseMoney(document.getElementById('edit_contrato_monto_mensual').value);
+                church.obs_contrato           = document.getElementById('edit_obs_contrato').value;
+                church.titular_agua           = document.getElementById('edit_titular_agua').value;
+                church.titular_luz            = document.getElementById('edit_titular_luz').value;
+                church.titular_internet       = document.getElementById('edit_titular_internet').value;
+                church.titular_telefono       = document.getElementById('edit_titular_telefono').value;
+                church.inventario_bienes      = document.getElementById('edit_inventario_bienes').value;
+                church.obs_inventario         = document.getElementById('edit_obs_inventario').value;
+
+                const { error } = await _supabase.from('churches').update({
+                    tipo_local: church.tipo_local, contrato_titular: church.contrato_titular,
+                    contrato_inicio: church.contrato_inicio || null, contrato_fin: church.contrato_fin || null,
+                    contrato_monto_mensual: church.contrato_monto_mensual, obs_contrato: church.obs_contrato,
+                    titular_agua: church.titular_agua, titular_luz: church.titular_luz,
+                    titular_internet: church.titular_internet, titular_telefono: church.titular_telefono,
+                    inventario_bienes: church.inventario_bienes, obs_inventario: church.obs_inventario
+                }).eq('id', id);
+                if (error) throw error;
+
+            } else if (tab === 'cofres') {
+                m.custodio_llave_nombre = document.getElementById('edit_custodio_llave_nombre').value;
+                m.custodio_llave_tel    = document.getElementById('edit_custodio_llave_tel').value;
+                m.custodio_pass_nombre  = document.getElementById('edit_custodio_pass_nombre').value;
+                m.custodio_pass_tel     = document.getElementById('edit_custodio_pass_tel').value;
+                m.obs_cofre             = document.getElementById('edit_obs_cofre').value;
+
+                const payload = {
+                    church_id: id, month_key: globalMonth,
+                    entrada: m.entrada || 0, saida: m.saida || 0, saldo: m.saldo || 0,
+                    envio_relatorio: m.envio_relatorio || 'NÃO',
+                    custodio_llave_nombre: m.custodio_llave_nombre, custodio_llave_tel: m.custodio_llave_tel,
+                    custodio_pass_nombre: m.custodio_pass_nombre, custodio_pass_tel: m.custodio_pass_tel,
+                    obs_cofre: m.obs_cofre
+                };
+                if (m._supabase_id) {
+                    const { error } = await _supabase.from('monthly_reports').update(payload).eq('id', m._supabase_id);
+                    if (error) throw error;
+                } else {
+                    const { data, error } = await _supabase.from('monthly_reports').upsert(payload, { onConflict: 'church_id,month_key' }).select('id').single();
+                    if (error) throw error;
+                    if (data) m._supabase_id = data.id;
+                }
+            }
+
+            closeModal('editor-modal');
+            renderAllTables();
+            setSyncStatus('synced');
+            showToast('✅ Cambios guardados.', 'success');
+        } catch(err) {
+            setSyncStatus('error');
+            showToast(`Error al guardar: ${err.message}`, 'error');
+            console.error('saveData error:', err);
+        }
+    }
+
+    // ── UPLOAD A GOOGLE DRIVE ────────────────────────────────────
+    async function uploadToDrive(file, churchId, category, subFolder) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('churchId', churchId || '');
+        formData.append('category', category);
+        formData.append('subFolder', subFolder || '');
+
+        const res = await fetch(`${DRIVE_PROXY_URL}/upload`, { method: 'POST', body: formData });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+            throw new Error(err.error || 'Error al subir a Drive');
+        }
+        return await res.json(); // { fileId, url, webViewLink, fileName, isPdf }
+    }
+
+    // ── GUARDAR ATTACHMENT EN SUPABASE ───────────────────────────
+    async function saveAttachment(entityType, entityId, attachmentKey, driveResult, originalFile) {
+        const payload = {
+            entity_type:      entityType,
+            entity_id:        String(entityId),
+            attachment_key:   attachmentKey,
+            storage_path:     driveResult.fileId,
+            public_url:       driveResult.url,
+            file_name:        driveResult.fileName || originalFile.name,
+            file_type:        originalFile.type || '',
+            file_size_bytes:  originalFile.size || 0,
+            is_pdf:           driveResult.isPdf || false
+        };
+        const { data, error } = await _supabase.from('attachments').insert(payload).select('id').single();
+        if (error) throw error;
+        return { ...driveResult, _supabase_id: data.id };
+    }
+
+    // ── UPLOADER GENÉRICO (seleccionar archivo) ──────────────────
+    function createUploader(callback, accept = 'image/*,application/pdf') {
+        let inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = accept;
+        inp.onchange = e => { let f = e.target.files[0]; if(f) callback(f); };
+        inp.click();
+    }
+
+    // ── TRIGGER UPLOADERS POR TIPO ───────────────────────────────
+    function triggerUploadMensual(churchId, key) {
+        const keyMap = {
+            'adjuntos_comprobante_deposito': { sub: 'deposito', attKey: 'comprobante_deposito' },
+            'adjuntos_relatorio_fisico':     { sub: 'relatorio', attKey: 'relatorio_fisico' },
+            'adjuntos_llave_foto':           { sub: 'cofre', attKey: 'llave_foto' },
+            'adjuntos_pass_foto':            { sub: 'cofre', attKey: 'pass_foto' }
+        };
+        const meta = keyMap[key] || { sub: key, attKey: key };
+
+        createUploader(async (file) => {
+            showUploadSpinner();
+            try {
+                const church = db.find(c => c.id === churchId);
+                let m = getMensualData(church);
+
+                // Asegurarse que el monthly_report existe en Supabase
+                if (!m._supabase_id) {
+                    const payload = { church_id: churchId, month_key: globalMonth, entrada: m.entrada || 0, saida: m.saida || 0, saldo: m.saldo || 0, envio_relatorio: 'NÃO' };
+                    const { data } = await _supabase.from('monthly_reports').upsert(payload, { onConflict: 'church_id,month_key' }).select('id').single();
+                    if (data) m._supabase_id = data.id;
+                }
+
+                const driveResult = await uploadToDrive(file, churchId, 'monthly', `${globalMonth}/${meta.sub}`);
+                const saved = await saveAttachment('monthly_report', m._supabase_id, meta.attKey, driveResult, file);
+
+                m[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                renderAllTables();
+                showToast('✅ Archivo subido a Drive.', 'success');
+            } catch(err) {
+                showToast(`Error al subir: ${err.message}`, 'error');
+            } finally {
+                hideUploadSpinner();
+            }
+        });
+    }
+
+    function triggerUploadBase(churchId, key) {
+        const subMap = {
+            'contrato_doc': 'contrato', 'agua_recibo': 'recibos', 'luz_recibo': 'recibos',
+            'internet_recibo': 'recibos', 'telefono_recibo': 'recibos', 'fotos_inventario': 'inventario'
+        };
+        createUploader(async (file) => {
+            showUploadSpinner();
+            try {
+                const church = db.find(c => c.id === churchId);
+                const driveResult = await uploadToDrive(file, churchId, 'churches', subMap[key] || key);
+                const saved = await saveAttachment('church', churchId, key, driveResult, file);
+                church.adjuntos_base[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                renderAllTables();
+                showToast('✅ Archivo subido a Drive.', 'success');
+            } catch(err) {
+                showToast(`Error al subir: ${err.message}`, 'error');
+            } finally {
+                hideUploadSpinner();
+            }
+        });
+    }
+
+    function triggerUploadMemberFicha(churchId, idx) {
+        createUploader(async (file) => {
+            showUploadSpinner();
+            try {
+                const church = db.find(c => c.id === churchId);
+                const mem = church.miembros_list[idx];
+                const driveResult = await uploadToDrive(file, churchId, 'members', 'ficha');
+                const saved = await saveAttachment('member', mem._supabase_id, 'adjuntos_ficha', driveResult, file);
+                mem.adjuntos_ficha.push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
+                showToast('✅ Ficha subida a Drive.', 'success');
+            } catch(err) {
+                showToast(`Error al subir ficha: ${err.message}`, 'error');
+            } finally {
+                hideUploadSpinner();
+            }
+        });
+    }
+
+    function triggerUploadMemberProfile(churchId, idx) {
+        createUploader(async (file) => {
+            showUploadSpinner();
+            try {
+                const church = db.find(c => c.id === churchId);
+                const mem = church.miembros_list[idx];
+                const driveResult = await uploadToDrive(file, churchId, 'members', 'perfil');
+                const saved = await saveAttachment('member', mem._supabase_id, 'foto_perfil', driveResult, file);
+                mem.foto_perfil = [{ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: false, driveFileId: saved.fileId }];
+                document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
+                showToast('✅ Foto de perfil actualizada.', 'success');
+            } catch(err) {
+                showToast(`Error al subir foto: ${err.message}`, 'error');
+            } finally {
+                hideUploadSpinner();
+            }
+        }, 'image/*');
+    }
+
+    async function deleteFile(type, churchId, key, fileIdx, month, memberIdx) {
+        if (!confirm("¿Deseas eliminar este archivo definitivamente?")) return;
+        let church = db.find(c => c.id === churchId);
+        
+        let fileObj = null;
+        if (type === 'base')          fileObj = church.adjuntos_base[key][fileIdx];
+        else if (type === 'mensual')  fileObj = church.mensual[month]?.[key]?.[fileIdx];
+        else if (type === 'member_ficha')  fileObj = church.miembros_list[memberIdx]?.adjuntos_ficha[fileIdx];
+        else if (type === 'member_perfil') fileObj = church.miembros_list[memberIdx]?.foto_perfil[fileIdx];
+
+        setSyncStatus('syncing');
+        try {
+            // Eliminar de Supabase attachments
+            if (fileObj?._supabase_id) {
+                await _supabase.from('attachments').delete().eq('id', fileObj._supabase_id);
+            }
+            // Eliminar de Drive (best effort)
+            if (fileObj?.driveFileId) {
+                fetch(`${DRIVE_PROXY_URL}/file/${fileObj.driveFileId}`, { method: 'DELETE' }).catch(() => {});
+            }
+
+            await logHistory("Eliminación de Archivo", `Se eliminó un archivo (Doc/Foto) de tipo <b>${key}</b> en la sede de ${church.ciudad}.`, churchId);
+
+            if (type === 'base')          church.adjuntos_base[key].splice(fileIdx, 1);
+            else if (type === 'mensual')  church.mensual[month][key].splice(fileIdx, 1);
+            else if (type === 'member_ficha')  church.miembros_list[memberIdx].adjuntos_ficha.splice(fileIdx, 1);
+            else if (type === 'member_perfil') church.miembros_list[memberIdx].foto_perfil.splice(fileIdx, 1);
+
+            if (type === 'member_ficha' || type === 'member_perfil') {
+                document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
+            } else {
+                renderAllTables();
+            }
+            setSyncStatus('synced');
+            showToast('Archivo eliminado.', 'warning');
+        } catch(err) {
+            setSyncStatus('error');
+            showToast(`Error al eliminar: ${err.message}`, 'error');
+        }
+    }
+
+    function renderGallery(files, delInfo) {
+        if(!files || files.length === 0) return '';
+        return files.map((f, i) => `
+            <div class="gallery-item no-print">
+                ${f.isPdf ? `<button class="btn btn-red" style="padding:2px 4px; font-size:9px;" onclick="window.open('${f.url}')">📄 PDF</button>` : `<img class="photo-thumb" src="${f.url}" onclick="openLightbox('${f.url}')">`}
+                <div class="action-menu">
+                    <button class="menu-dots" onclick="toggleMenu(event, 'menu-file-${delInfo.churchId}-${delInfo.key}-${i}')">⋮</button>
+                    <div class="menu-dropdown" id="menu-file-${delInfo.churchId}-${delInfo.key}-${i}">
+                        <button class="del-btn" onclick="deleteFile('${delInfo.type}', '${delInfo.churchId}', '${delInfo.key}', ${i}, '${delInfo.month||''}', ${delInfo.memberIdx !== undefined ? delInfo.memberIdx : null})">🗑️ Eliminar Archivo</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openLightbox(url) { document.getElementById('lightbox-img').src = url; document.getElementById('lightbox').style.display = 'flex'; }
+    function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+    
+    function fInp(l, k, v, t='text', isTA=false) { return isTA ? `<div class="form-group full"><label>${l}</label><textarea id="edit_${k}">${v||''}</textarea></div>` : `<div class="form-group"><label>${l}</label><input type="${t}" id="edit_${k}" value="${v||''}"></div>`; }
+    function fSel(l, k, v, opts) { return `<div class="form-group"><label>${l}</label><select id="edit_${k}">${opts.map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('')}</select></div>`; }
+
+    function exportCSV() {
+        let csvContent = "ID,Pais,Estado,Cidade,Status,Pastor,Financeiro,Total Membros Ativos\n";
+        let term = document.getElementById("global-search").value.toLowerCase();
+        let filtered = db.filter(c => c.ciudad.toLowerCase().includes(term) || c.estado.toLowerCase().includes(term) || c.id.toLowerCase().includes(term) || c.dirigente1_nome.toLowerCase().includes(term));
+
+        filtered.forEach(c => {
+            let row = [
+                c.id, c.pais, c.estado, c.ciudad, c.estatus_iglesia,
+                c.dirigente1_nome, c.financiero1_nome, countActiveMembers(c)
+            ].map(x => '"' + String(x).replace(/"/g, '""') + '"').join(",");
+            csvContent += row + "\n";
+        });
+
+        let blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Relatorio_Mestre_IPDD.csv";
+        link.style.visibility = 'hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+</script>
+</body>
+</html>
