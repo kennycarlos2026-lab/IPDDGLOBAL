@@ -1813,16 +1813,16 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         let endDate = new Date(y, m - 1, d);
         finInput.readOnly = true; 
 
-        if (tiempo === '1 mes') endDate.setMonth(endDate.getMonth() + 1);
+        if (tiempo === '1 mês' || tiempo === '1 mes') endDate.setMonth(endDate.getMonth() + 1);
         else if (tiempo === '2 meses') endDate.setMonth(endDate.getMonth() + 2);
         else if (tiempo === '3 meses') endDate.setMonth(endDate.getMonth() + 3);
         else if (tiempo === '4 meses') endDate.setMonth(endDate.getMonth() + 4);
         else if (tiempo === '5 meses') endDate.setMonth(endDate.getMonth() + 5);
         else if (tiempo === '6 meses') endDate.setMonth(endDate.getMonth() + 6);
-        else if (tiempo === '1 año') endDate.setFullYear(endDate.getFullYear() + 1);
-        else if (tiempo === '2 años') endDate.setFullYear(endDate.getFullYear() + 2);
+        else if (tiempo === '1 ano' || tiempo === '1 año') endDate.setFullYear(endDate.getFullYear() + 1);
+        else if (tiempo === '2 anos' || tiempo === '2 años') endDate.setFullYear(endDate.getFullYear() + 2);
         else if (tiempo === 'Indefinido') { finInput.value = ''; return; }
-        else if (tiempo === 'Otro') { finInput.readOnly = false; finInput.value = ''; return; }
+        else if (tiempo === 'Outro' || tiempo === 'Otro') { finInput.readOnly = false; finInput.value = ''; return; }
 
         let yyyy = endDate.getFullYear();
         let mm = String(endDate.getMonth() + 1).padStart(2, '0');
@@ -1839,7 +1839,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         dDisc.style.display = 'none';
         dFec.style.display = 'none';
 
-        if(val === 'En disciplina') {
+        if(val === 'Em disciplina' || val === 'En disciplina') {
             dDisc.style.display = 'block';
             let inicioInput = document.getElementById('new_mem_disc_inicio');
             if(!inicioInput.value) {
@@ -1850,7 +1850,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 document.getElementById('new_mem_disc_tiempo').value = "1 mês";
                 calcDisciplinaFin();
             }
-        } else if (['Trasladado', 'Desligado', 'Expulsado/excluido', 'Fallecido'].includes(val)) {
+        } else if (['Transferido', 'Trasladado', 'Desligado', 'Expulso/excluído', 'Expulsado/excluido', 'Falecido', 'Fallecido'].includes(val)) {
             dFec.style.display = 'block';
             if(val === 'Transferido' || val === 'Trasladado') lFec.innerText = 'Data de Transferência';
             if(val === 'Desligado') lFec.innerText = 'Data de Saída';
