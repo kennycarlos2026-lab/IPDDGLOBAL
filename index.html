@@ -263,9 +263,18 @@
             body:not(.printing-dossier) .table-wrapper { border: none !important; box-shadow: none !important; background: transparent !important; overflow: visible !important; height: auto !important; max-height: none !important; margin: 0 !important; page-break-inside: auto; }
             body:not(.printing-dossier) .group-header { border: 1px solid #000; background: #eee !important; color: #000 !important; margin-top: 20px !important; page-break-after: avoid; }
             
-            body:not(.printing-dossier) .data-table, body:not(.printing-dossier) .inner-table { width: 100% !important; border-collapse: collapse !important; page-break-inside: auto; }
-            body:not(.printing-dossier) .data-table th, body:not(.printing-dossier) .inner-table th { background: #eee !important; color: black !important; border: 1px solid #000 !important; padding: 6px !important; }
-            body:not(.printing-dossier) .data-table td, body:not(.printing-dossier) .inner-table td { border: 1px solid #aaa !important; color: black !important; padding: 6px !important; vertical-align: top; }
+            body:not(.printing-dossier) .data-table, body:not(.printing-dossier) .inner-table { width: 100% !important; min-width: 0 !important; border-collapse: collapse !important; page-break-inside: auto; font-size: 10px !important; }
+            body:not(.printing-dossier) .data-table th, body:not(.printing-dossier) .inner-table th { background: #eee !important; color: black !important; border: 1px solid #000 !important; padding: 4px !important; }
+            body:not(.printing-dossier) .data-table td, body:not(.printing-dossier) .inner-table td { border: 1px solid #aaa !important; color: black !important; padding: 4px !important; vertical-align: top; word-wrap: break-word !important; }
+            
+            body:not(.printing-dossier) .card-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+            body:not(.printing-dossier) .card-row { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc !important; }
+            body:not(.printing-dossier) .card-col { min-width: 0 !important; border: 1px solid #ddd !important; }
+            body:not(.printing-dossier) .photo-gallery, body:not(.printing-dossier) .action-menu { display: none !important; }
+            body:not(.printing-dossier) .contract-duration-box { border: 1px solid #ccc !important; }
+            body:not(.printing-dossier) .country-section { break-inside: avoid; }
+            body:not(.printing-dossier) .country-content { display: block !important; max-height: none !important; }
+            body:not(.printing-dossier) .state-content { display: block !important; }
             
             body.printing-dossier { background: white !important; display: block !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
             body.printing-dossier > *:not(#dossier-modal) { display: none !important; }
