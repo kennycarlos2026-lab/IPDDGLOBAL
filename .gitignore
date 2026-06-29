@@ -1,4 +1,5 @@
 node_modules/
 sync-drive/node_modules/
-*.log
 .env
+service-account.json
+*.log
