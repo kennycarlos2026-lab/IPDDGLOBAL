@@ -1,0 +1,4 @@
+node_modules/
+sync-drive/node_modules/
+*.log
+.env

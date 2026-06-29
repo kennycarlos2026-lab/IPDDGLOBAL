@@ -145,6 +145,112 @@
         .sync-status.syncing { background:#fef3c7; color:#b45309; }
         .sync-status.error   { background:#fee2e2; color:#b91c1c; }
 
+        /* ── RESPONSIVE MÓVIL ── */
+        @media (max-width: 768px) {
+            /* Nav superior */
+            .top-nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px 12px;
+                height: auto;
+            }
+            .top-nav h2 {
+                font-size: 13px;
+                line-height: 1.3;
+            }
+            .top-nav h2 span {
+                display: block;
+                margin-left: 0 !important;
+                margin-top: 4px;
+                font-size: 10px !important;
+            }
+            .nav-controls {
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .nav-controls label {
+                font-size: 11px !important;
+            }
+            .month-selector {
+                width: 100%;
+                font-size: 13px;
+                padding: 4px 8px;
+                box-sizing: border-box;
+            }
+            .sync-status {
+                font-size: 10px;
+            }
+
+            /* Tabs horizontales con scroll */
+            .tabs-header {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                gap: 0;
+                padding: 0;
+            }
+            .tab-btn {
+                white-space: nowrap;
+                padding: 10px 12px;
+                font-size: 11px;
+                flex-shrink: 0;
+            }
+
+            /* Barra de acción */
+            .action-bar {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .action-bar > div:last-child > div {
+                flex-wrap: wrap;
+                gap: 6px !important;
+            }
+            .action-bar .btn {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+
+            /* Contenido principal sin overflow lateral */
+            .main-content {
+                padding: 10px !important;
+                overflow-x: hidden;
+            }
+
+            /* Card-grid: una columna en móvil */
+            .card-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .card-col {
+                min-width: 0;
+            }
+
+            /* Tablas con scroll horizontal */
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .data-table {
+                min-width: 500px;
+                font-size: 11px;
+            }
+            .data-table th, .data-table td {
+                padding: 6px 5px;
+            }
+
+            /* Toasts en móvil */
+            .toast-container {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+            }
+            .toast {
+                max-width: 100%;
+                font-size: 12px;
+            }
+        }
+
         @media print {
             body:not(.printing-dossier) html, body:not(.printing-dossier) body { height: auto !important; overflow: visible !important; background: white !important; color: black !important; display: block !important; margin: 0 !important; padding: 0 !important; }
             body:not(.printing-dossier) .top-nav, body:not(.printing-dossier) .tabs-header, body:not(.printing-dossier) .action-bar, body:not(.printing-dossier) .btn, body:not(.printing-dossier) .editor-modal, body:not(.printing-dossier) .lightbox, body:not(.printing-dossier) .month-selector, body:not(.printing-dossier) .no-print, body:not(.printing-dossier) .dashboard-grid { display: none !important; }
@@ -166,6 +272,57 @@
             body.printing-dossier #dossier-modal { position: static; display: block !important; background: white; height: auto !important; overflow: visible !important; }
             body.printing-dossier #dossier-modal .modal-content { box-shadow: none; width: 100%; max-width: 100%; border: none; margin: 0; padding: 0; height: auto !important; overflow: visible !important; }
             body.printing-dossier .no-print { display: none !important; }
+        }
+
+        /* ── COLAPSABLES PAÍS / ESTADO ── */
+        .country-section { margin-top: 20px; }
+        .country-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            color: white; padding: 13px 18px;
+            font-weight: 700; font-size: 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; user-select: none;
+            transition: background 0.2s;
+        }
+        .country-header:hover { background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%); }
+        .country-content { transition: max-height 0.3s ease, opacity 0.3s ease; overflow: hidden; }
+        .country-content.collapsed { display: none; }
+        .country-header.collapsed .arrow { transform: rotate(-90deg); }
+        .country-header .arrow { transition: transform 0.3s; display: inline-block; font-size: 12px; }
+
+        .group-header {
+            background: var(--primary-light); color: white;
+            padding: 10px 15px; font-weight: bold; font-size: 13px;
+            margin-top: 8px; margin-left: 8px; margin-right: 8px;
+            border-radius: 6px 6px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; user-select: none;
+            transition: background 0.2s;
+        }
+        .group-header:hover { background: #334155; }
+        .group-header.collapsed .arrow { transform: rotate(-90deg); }
+        .state-content { margin-left: 8px; margin-right: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .state-content.collapsed { display: none; }
+
+        /* Botón de ordenamiento dentro del country-header */
+        .sort-toggle-btn {
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        .sort-toggle-btn:hover {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border-color: rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -424,10 +581,6 @@
     const SUPABASE_URL = 'https://cmphsgbieupmqjvqedix.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_HO12D11b34-b6MXOU9AOXQ__20giRiu';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ── GOOGLE DRIVE PROXY CONFIG ────────────────────────────────
-    // Proxy en Render.com (gratis, siempre activo)
-    const DRIVE_PROXY_URL = 'https://ipdd-drive-proxy.onrender.com';
 
     // ── BASE DE DATOS EN MEMORIA (se carga desde Supabase) ───────
     let db = [];
@@ -1045,9 +1198,70 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         event.currentTarget.classList.add('active');
     }
 
+    // ── ORDEN ORIGINAL DE CREACIÓN DE ESTADOS ────────────────────
+    const CREATION_ORDER_BRASIL = [
+        'Ceará', 'Goiás - GO', 'Distrito Federal - DF',
+        'Mato Grosso do Sul', 'Espírito Santo',
+        'Minas Gerais - MG', 'São Paulo - SP',
+        'Rio de Janeiro', 'Paraná - PR',
+        'Rio Grande do Sul - RS', 'Santa Catarina', 'Acre'
+    ];
+    const CREATION_ORDER_PERU = [
+        'Cusco - Perú', 'Lima - Perú', 'Arequipa -Perú',
+        'Huánuco - Perú', 'Puerto Maldonado - Perú'
+    ];
+
+    // Mapa de orden para cada país: { pais => { estado => índice } }
+    // Los estados no reconocidos van al final (índice 9999)
+    function getCreationOrderIndex(pais, estado) {
+        let list = [];
+        if (pais && pais.toLowerCase().includes('brasil')) list = CREATION_ORDER_BRASIL;
+        else if (pais && (pais.toLowerCase().includes('per') )) list = CREATION_ORDER_PERU;
+        let idx = list.findIndex(s => s.toLowerCase() === estado.toLowerCase());
+        return idx >= 0 ? idx : 9999; // nuevos estados van al final
+    }
+
+    // sortMode por país: 'creation' (default) | 'alpha'
+    let countrySortMode = {}; // { 'Brasil': 'creation', 'Perú': 'alpha', ... }
+
+    function getSortMode(pais) {
+        return countrySortMode[pais] || 'creation';
+    }
+
+    function toggleCountrySort(pais) {
+        let current = getSortMode(pais);
+        countrySortMode[pais] = current === 'creation' ? 'alpha' : 'creation';
+        renderAllTables();
+    }
+
+    function sortChurches(churchesArray) {
+        // Solo ordena por país (prioridad fija: Brasil > Perú > otros)
+        // El orden de estados dentro de cada país lo maneja groupDbByCountryAndState
+        return [...churchesArray].sort((a, b) => {
+            let paisA = a.pais || 'Brasil';
+            let paisB = b.pais || 'Brasil';
+
+            let prioA = paisA.toLowerCase().includes('brasil') ? 1 :
+                        (paisA.toLowerCase().includes('per') ? 2 : 3);
+            let prioB = paisB.toLowerCase().includes('brasil') ? 1 :
+                        (paisB.toLowerCase().includes('per') ? 2 : 3);
+
+            if (prioA !== prioB) return prioA - prioB;
+            if (prioA === 3 && paisA !== paisB) return paisA.localeCompare(paisB);
+
+            // Dentro del mismo país: ordenar por ciudad
+            return (a.ciudad || '').localeCompare(b.ciudad || '');
+        });
+    }
+
     function groupDbByCountry(filteredDb) {
+        let sortedDb = sortChurches(filteredDb);
         let groups = {};
-        filteredDb.forEach(c => { let p = c.estado || "Outros"; if(!groups[p]) groups[p] = []; groups[p].push(c); });
+        sortedDb.forEach(c => { 
+            let p = c.estado || "Outros"; 
+            if(!groups[p]) groups[p] = []; 
+            groups[p].push(c); 
+        });
         return groups;
     }
 
@@ -1083,23 +1297,118 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         drawModule5Report(filtered); 
     }
 
+    function sanitizeId(str) {
+        return str.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    }
+
+    let collapsedStates = {};
+
+    function toggleSectionCollapse(contentId, headerEl) {
+        let contentEl = document.getElementById(contentId);
+        if (!contentEl) return;
+        let isCollapsed = contentEl.classList.contains('collapsed');
+        if (isCollapsed) {
+            contentEl.classList.remove('collapsed');
+            headerEl.classList.remove('collapsed');
+            collapsedStates[contentId] = false;
+        } else {
+            contentEl.classList.add('collapsed');
+            headerEl.classList.add('collapsed');
+            collapsedStates[contentId] = true;
+        }
+    }
+
+    function groupDbByCountryAndState(filteredDb) {
+        let sortedDb = sortChurches(filteredDb);
+        let result = {};
+        sortedDb.forEach(c => {
+            let pais = c.pais || 'Outros';
+            let estado = c.estado || 'Outros';
+            if (!result[pais]) result[pais] = {};
+            if (!result[pais][estado]) result[pais][estado] = [];
+            result[pais][estado].push(c);
+        });
+        // Ordenar estados dentro de cada país según el modo de ordenamiento
+        Object.keys(result).forEach(pais => {
+            let mode = getSortMode(pais);
+            let stateKeys = Object.keys(result[pais]);
+            if (mode === 'alpha') {
+                stateKeys.sort((a, b) => a.localeCompare(b));
+            } else {
+                // Orden de creación: los estados conocidos por índice, los nuevos al final
+                stateKeys.sort((a, b) => {
+                    let ia = getCreationOrderIndex(pais, a);
+                    let ib = getCreationOrderIndex(pais, b);
+                    if (ia !== ib) return ia - ib;
+                    return a.localeCompare(b); // desempate alfabético entre desconocidos
+                });
+            }
+            // Reordenar el objeto
+            let ordered = {};
+            stateKeys.forEach(k => { ordered[k] = result[pais][k]; });
+            result[pais] = ordered;
+        });
+        return result;
+    }
+
     function buildTableBase(data, headers, rowCallback, containerId) {
-        let groups = groupDbByCountry(data);
+        let countryGroups = groupDbByCountryAndState(data);
         let container = document.getElementById(containerId);
         container.innerHTML = "";
-        
-        Object.keys(groups).forEach(estado => {
+
+        Object.keys(countryGroups).forEach(pais => {
+            let paisSanitized = sanitizeId(pais);
+            let countryContentId = `country-content-${containerId}-${paisSanitized}`;
+            let isCountryCollapsed = collapsedStates[countryContentId] === true;
+            let ccClass = isCountryCollapsed ? ' collapsed' : '';
+            let sortMode = getSortMode(pais);
+            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+
             let html = `
-                <div class="group-header">${groups[estado][0].pais.includes('Brasil') ? '🇧🇷' : '🌎'} ${estado.toUpperCase()} (${groups[estado].length} Sedes)</div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead><tr>${headers}</tr></thead>
-                        <tbody>`;
-            groups[estado].forEach(c => { html += rowCallback(c); });
-            html += `</tbody></table></div>`;
+                <div class="country-section">
+                    <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
+                        <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <span class="arrow">▼</span>
+                        </div>
+                    </div>
+                    <div class="country-content${ccClass}" id="${countryContentId}">`;
+
+            let stateGroups = countryGroups[pais];
+            Object.keys(stateGroups).forEach(estado => {
+                let estadoSanitized = sanitizeId(estado);
+                let stateContentId = `state-content-${containerId}-${paisSanitized}-${estadoSanitized}`;
+                let isStateCollapsed = collapsedStates[stateContentId] === true;
+                let scClass = isStateCollapsed ? ' collapsed' : '';
+
+                html += `
+                    <div class="group-header${scClass}" onclick="toggleSectionCollapse('${stateContentId}', this)">
+                        <span>🏢 ${estado.toUpperCase()} (${stateGroups[estado].length} Sedes)</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="state-content${scClass}" id="${stateContentId}">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead><tr>${headers}</tr></thead>
+                                <tbody>`;
+
+                stateGroups[estado].forEach(c => { html += rowCallback(c); });
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
+
+            html += `
+                    </div>
+                </div>`;
             container.innerHTML += html;
         });
     }
+
 
     async function deleteChurch(id) {
         if(confirm("ATENCIÓN: ¿Estás seguro que deseas ELIMINAR PERMANENTEMENTE esta sede y TODOS sus registros?")) {
@@ -1148,81 +1457,115 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
     }
 
     function drawModule2(data) {
-        let groups = groupDbByCountry(data);
+        let countryGroups = groupDbByCountryAndState(data);
         let container = document.getElementById("wrapper-contratos");
         container.innerHTML = "";
-        
-        Object.keys(groups).forEach(estado => {
-            let html = `<div class="group-header">${groups[estado][0].pais === 'Brasil' ? '🇧🇷' : '🌎'} ${estado.toUpperCase()} (${groups[estado].length} Sedes)</div>`;
-            groups[estado].forEach(c => {
-                let isAlugado = c.tipo_local === 'Alquilado' || c.tipo_local === 'Alugado';
-                let stContrato = isAlugado ? '📄 Alquiler/Locación' : `🏢 ${c.tipo_local || 'Propio'}`;
-                let valorAluguel = isAlugado ? `<span style="color:var(--danger); font-weight:bold;">${fmtMoney(c.contrato_monto_mensual)}</span>` : '<span style="color:var(--text-muted);">N/A</span>';
-                
-                let pct = 0; let rest = '---';
-                if(c.contrato_inicio && c.contrato_fin) {
-                    let d1 = new Date(c.contrato_inicio); let d2 = new Date(c.contrato_fin); let dn = new Date();
-                    if(d2 > d1 && dn >= d1 && dn <= d2) {
-                        pct = ((dn.getTime() - d1.getTime()) / (d2.getTime() - d1.getTime())) * 100;
-                        rest = Math.ceil((d2.getTime() - dn.getTime()) / (1000 * 3600 * 24 * 30)) + ' meses';
-                    } else if (dn > d2) { pct = 100; rest = 'Vencido'; }
-                }
+
+        Object.keys(countryGroups).forEach(pais => {
+            let paisSanitized = sanitizeId(pais);
+            let countryContentId = `country-content-contratos-${paisSanitized}`;
+            let isCountryCollapsed = collapsedStates[countryContentId] === true;
+            let ccClass = isCountryCollapsed ? ' collapsed' : '';
+            let sortMode = getSortMode(pais);
+            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+
+            let html = `
+                <div class="country-section">
+                    <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
+                        <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <span class="arrow">▼</span>
+                        </div>
+                    </div>
+                    <div class="country-content${ccClass}" id="${countryContentId}">`;
+
+            let stateGroups = countryGroups[pais];
+            Object.keys(stateGroups).forEach(estado => {
+                let estadoSanitized = sanitizeId(estado);
+                let stateContentId = `state-content-contratos-${paisSanitized}-${estadoSanitized}`;
+                let isStateCollapsed = collapsedStates[stateContentId] === true;
+                let scClass = isStateCollapsed ? ' collapsed' : '';
 
                 html += `
-                <div class="card-row">
-                    <div class="card-header">
-                        <div class="card-title"><span>📍</span> ${c.ciudad} <span class="badge badge-info" style="font-size:10px; margin-left:8px;">${c.id}</span></div>
-                        <button class="btn btn-dark" style="font-size:11px;" onclick="openEditor('${c.id}', 'contratos')">⚙️ Configurar Local/Contrato</button>
+                    <div class="group-header${scClass}" onclick="toggleSectionCollapse('${stateContentId}', this)">
+                        <span>🏢 ${estado.toUpperCase()} (${stateGroups[estado].length} Sedes)</span>
+                        <span class="arrow">▼</span>
                     </div>
-                    <div class="card-grid">
-                        <div class="card-col">
-                            <h5>Dados do Imóvel</h5>
-                            <div class="card-item"><b>Condición:</b> <span class="badge badge-gray">${stContrato}</span></div>
-                            <div class="card-item"><b>Valor Mensual:</b> ${valorAluguel}</div>
-                            <div class="card-item"><b>Titular:</b> <span>${c.contrato_titular || '---'}</span></div>
-                            ${isAlugado ? `
-                            <div class="contract-duration-box">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span>Vencimiento:</span><span class="time-val">${c.contrato_fin ? c.contrato_fin.split('-').reverse().join('/') : '---'}</span>
+                    <div class="state-content${scClass}" id="${stateContentId}">`;
+
+                stateGroups[estado].forEach(c => {
+                    let isAlugado = c.tipo_local === 'Alquilado' || c.tipo_local === 'Alugado';
+                    let stContrato = isAlugado ? '📄 Alquiler/Locación' : `🏢 ${c.tipo_local || 'Propio'}`;
+                    let valorAluguel = isAlugado ? `<span style="color:var(--danger); font-weight:bold;">${fmtMoney(c.contrato_monto_mensual)}</span>` : '<span style="color:var(--text-muted);">N/A</span>';
+
+                    let pct = 0; let rest = '---';
+                    if(c.contrato_inicio && c.contrato_fin) {
+                        let d1 = new Date(c.contrato_inicio); let d2 = new Date(c.contrato_fin); let dn = new Date();
+                        if(d2 > d1 && dn >= d1 && dn <= d2) {
+                            pct = ((dn.getTime() - d1.getTime()) / (d2.getTime() - d1.getTime())) * 100;
+                            rest = Math.ceil((d2.getTime() - dn.getTime()) / (1000 * 3600 * 24 * 30)) + ' meses';
+                        } else if (dn > d2) { pct = 100; rest = 'Vencido'; }
+                    }
+
+                    html += `
+                    <div class="card-row">
+                        <div class="card-header">
+                            <div class="card-title"><span>📍</span> ${c.ciudad} <span class="badge badge-info" style="font-size:10px; margin-left:8px;">${c.id}</span></div>
+                            <button class="btn btn-dark" style="font-size:11px;" onclick="openEditor('${c.id}', 'contratos')">⚙️ Configurar Local/Contrato</button>
+                        </div>
+                        <div class="card-grid">
+                            <div class="card-col">
+                                <h5>Dados do Imóvel</h5>
+                                <div class="card-item"><b>Condición:</b> <span class="badge badge-gray">${stContrato}</span></div>
+                                <div class="card-item"><b>Valor Mensual:</b> ${valorAluguel}</div>
+                                <div class="card-item"><b>Titular:</b> <span>${c.contrato_titular || '---'}</span></div>
+                                ${isAlugado ? `
+                                <div class="contract-duration-box">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Vencimiento:</span><span class="time-val">${c.contrato_fin ? c.contrato_fin.split('-').reverse().join('/') : '---'}</span>
+                                    </div>
+                                    <div style="font-size:11px; margin-top:2px;">Tiempo Restante: <b style="color:${rest==='Vencido'?'var(--danger)':'var(--text-main)'}">${rest}</b></div>
+                                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${pct > 90 ? 'var(--danger)' : 'var(--success)'};"></div></div>
                                 </div>
-                                <div style="font-size:11px; margin-top:2px;">Tiempo Restante: <b style="color:${rest==='Vencido'?'var(--danger)':'var(--text-main)'}">${rest}</b></div>
-                                <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${pct > 90 ? 'var(--danger)' : 'var(--success)'};"></div></div>
+                                ` : `<div style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Imóvel próprio. Sem barra de contrato.</div>`}
                             </div>
-                            ` : `<div style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Imóvel próprio. Sem barra de contrato.</div>`}
-                        </div>
-                        <div class="card-col">
-                            <h5>Titulares de Serviços Básicos</h5>
-                            <div class="card-item"><b>💧 Água:</b> <span>${c.titular_agua || '<i style="color:#aaa">Não registrado</i>'}</span></div>
-                            <div class="card-item"><b>⚡ Luz:</b> <span>${c.titular_luz || '<i style="color:#aaa">Não registrado</i>'}</span></div>
-                            <div class="card-item"><b>🌐 Internet:</b> <span>${c.titular_internet || '<i style="color:#aaa">Não registrado</i>'}</span></div>
-                            <div class="card-item"><b>📞 Telefone:</b> <span>${c.titular_telefono || '<i style="color:#aaa">Não registrado</i>'}</span></div>
-                            <div style="font-size:11px; margin-top:10px; color:var(--text-muted);"><b>Obs Local:</b> ${c.obs_contrato || 'Nenhuma.'}</div>
-                        </div>
-                        <div class="card-col">
-                            <h5>Anexos e Documentação Visual</h5>
-                            
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
-                                <b>📄 Contrato Aluguel</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'contrato_doc')">➕ Enviar</button>
+                            <div class="card-col">
+                                <h5>Titulares de Serviços Básicos</h5>
+                                <div class="card-item"><b>💧 Água:</b> <span>${c.titular_agua || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                                <div class="card-item"><b>⚡ Luz:</b> <span>${c.titular_luz || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                                <div class="card-item"><b>🌐 Internet:</b> <span>${c.titular_internet || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                                <div class="card-item"><b>📞 Telefone:</b> <span>${c.titular_telefono || '<i style="color:#aaa">Não registrado</i>'}</span></div>
+                                <div style="font-size:11px; margin-top:10px; color:var(--text-muted);"><b>Obs Local:</b> ${c.obs_contrato || 'Nenhuma.'}</div>
                             </div>
-                            <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.contrato_doc, {type:'base', churchId:c.id, key:'contrato_doc'})}</div>
+                            <div class="card-col">
+                                <h5>Anexos e Documentação Visual</h5>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
+                                    <b>📄 Contrato Aluguel</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'contrato_doc')">➕ Enviar</button>
+                                </div>
+                                <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.contrato_doc, {type:'base', churchId:c.id, key:'contrato_doc'})}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
+                                    <b>🧾 Contas Recentes</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'luz_recibo')">➕ Enviar</button>
+                                </div>
+                                <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.luz_recibo, {type:'base', churchId:c.id, key:'luz_recibo'})}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px; border-top:1px dashed #e2e8f0; padding-top:6px;">
+                                    <b>📦 Fotos Inventário</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'fotos_inventario')">➕ Enviar</button>
+                                </div>
+                                <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">Resumo: ${c.inventario_bienes || 'Sem inventário descrito'}</div>
+                                <div class="photo-gallery">${renderGallery(c.adjuntos_base.fotos_inventario, {type:'base', churchId:c.id, key:'fotos_inventario'})}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
 
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px;">
-                                <b>🧾 Contas Recentes</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'luz_recibo')">➕ Enviar</button>
-                            </div>
-                            <div class="photo-gallery" style="margin-bottom:8px;">${renderGallery(c.adjuntos_base.luz_recibo, {type:'base', churchId:c.id, key:'luz_recibo'})}</div>
-
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:11px; border-top:1px dashed #e2e8f0; padding-top:6px;">
-                                <b>📦 Fotos Inventário</b><button class="btn btn-gray" style="padding:2px 6px; font-size:9px;" onclick="triggerUploadBase('${c.id}', 'fotos_inventario')">➕ Enviar</button>
-                            </div>
-                            <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">Resumo: ${c.inventario_bienes || 'Sem inventário descrito'}</div>
-                            <div class="photo-gallery">${renderGallery(c.adjuntos_base.fotos_inventario, {type:'base', churchId:c.id, key:'fotos_inventario'})}</div>
-                        </div>
-                    </div>
-                </div>`;
+                html += `</div>`;
             });
+
+            html += `</div></div>`;
             container.innerHTML += html;
         });
     }
+
 
     function drawModule3(data) {
         buildTableBase(data,
@@ -1245,46 +1588,84 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
     }
 
     function drawModule4(data) {
+        let countryGroups = groupDbByCountryAndState(data);
         let container = document.getElementById("wrapper-membresia");
         container.innerHTML = "";
-        
-        let groups = groupDbByCountry(data);
-        
-        Object.keys(groups).forEach(country => {
+
+        Object.keys(countryGroups).forEach(pais => {
+            let paisSanitized = sanitizeId(pais);
+            let countryContentId = `country-content-membresia-${paisSanitized}`;
+            let isCountryCollapsed = collapsedStates[countryContentId] === true;
+            let ccClass = isCountryCollapsed ? ' collapsed' : '';
+            let sortMode = getSortMode(pais);
+            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+
             let html = `
-                <div class="group-header">${groups[country][0].pais.includes('Brasil') ? '🇧🇷' : '🌎'} ${country.toUpperCase()} (${groups[country].length} Sedes)</div>
-                <div class="table-wrapper" style="overflow:visible;">
-                    <table class="data-table">
-                        <thead><tr><th>Iglesia / Sede</th><th>Resumen de Fichados</th><th>Acción Principal</th></tr></thead>
-                        <tbody>`;
-            groups[country].forEach(c => {
-                let isExpanded = expandedMembersRows.includes(c.id);
-                let contables = countActiveMembers(c);
+                <div class="country-section">
+                    <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
+                        <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <span class="arrow">▼</span>
+                        </div>
+                    </div>
+                    <div class="country-content${ccClass}" id="${countryContentId}">`;
+
+            let stateGroups = countryGroups[pais];
+            Object.keys(stateGroups).forEach(estado => {
+                let estadoSanitized = sanitizeId(estado);
+                let stateContentId = `state-content-membresia-${paisSanitized}-${estadoSanitized}`;
+                let isStateCollapsed = collapsedStates[stateContentId] === true;
+                let scClass = isStateCollapsed ? ' collapsed' : '';
+
                 html += `
-                    <tr style="background:#f8fafc; border-top:2px solid var(--border);">
-                        <td><b>${c.ciudad}</b><br><small>${c.id}</small></td>
-                        <td>
-                            <span class="badge badge-success">${contables} Miembros Activos</span><br>
-                            <small style="color:var(--text-muted); font-size:10px;">${c.miembros_list.length} Registros en Historial</small>
-                        </td>
-                        <td>
-                            <button class="btn btn-dark" onclick="toggleMembersRow('${c.id}')">🔽 Desglosar Miembros</button>
-                            <button class="btn btn-green" onclick="openAddMemberModal('${c.id}')">➕ Nuevo Registro</button>
-                        </td>
-                    </tr>
-                    <tr id="row-members-${c.id}" style="display: ${isExpanded ? 'table-row' : 'none'}; background:white;">
-                        <td colspan="3" style="padding:15px; border-left: 3px solid var(--accent);">
-                            <div id="content-members-${c.id}">
-                                ${isExpanded ? generateExpandedMembersHTML(c.id) : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                    <div class="group-header${scClass}" onclick="toggleSectionCollapse('${stateContentId}', this)">
+                        <span>🏢 ${estado.toUpperCase()} (${stateGroups[estado].length} Sedes)</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="state-content${scClass}" id="${stateContentId}">
+                        <div class="table-wrapper" style="overflow:visible;">
+                            <table class="data-table">
+                                <thead><tr><th>Iglesia / Sede</th><th>Resumen de Fichados</th><th>Acción Principal</th></tr></thead>
+                                <tbody>`;
+
+                stateGroups[estado].forEach(c => {
+                    let isExpanded = expandedMembersRows.includes(c.id);
+                    let contables = countActiveMembers(c);
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid var(--border);">
+                            <td><b>${c.ciudad}</b><br><small>${c.id}</small></td>
+                            <td>
+                                <span class="badge badge-success">${contables} Miembros Activos</span><br>
+                                <small style="color:var(--text-muted); font-size:10px;">${c.miembros_list.length} Registros en Historial</small>
+                            </td>
+                            <td>
+                                <button class="btn btn-dark" onclick="toggleMembersRow('${c.id}')">🔽 Desglosar Miembros</button>
+                                <button class="btn btn-green" onclick="openAddMemberModal('${c.id}')">➕ Nuevo Registro</button>
+                            </td>
+                        </tr>
+                        <tr id="row-members-${c.id}" style="display: ${isExpanded ? 'table-row' : 'none'}; background:white;">
+                            <td colspan="3" style="padding:15px; border-left: 3px solid var(--accent);">
+                                <div id="content-members-${c.id}">
+                                    ${isExpanded ? generateExpandedMembersHTML(c.id) : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
             });
-            html += `</tbody></table></div>`;
+
+            html += `</div></div>`;
             container.innerHTML += html;
         });
     }
+
 
     function toggleMembersRow(id) {
         let row = document.getElementById(`row-members-${id}`);
@@ -2022,38 +2403,81 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         }
     }
 
-    // ── UPLOAD A GOOGLE DRIVE ────────────────────────────────────
-    async function uploadToDrive(file, churchId, category, subFolder) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('churchId', churchId || '');
-        formData.append('category', category);
-        formData.append('subFolder', subFolder || '');
+    // ============================================================
+    // SUBIR ARCHIVOS A SUPABASE STORAGE (rápido, directo, sin proxy)
+    // Los archivos van a temp/ y un sync diario los mueve a Drive
+    // ============================================================
 
-        const res = await fetch(`${DRIVE_PROXY_URL}/upload`, { method: 'POST', body: formData });
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-            throw new Error(err.error || 'Error al subir a Drive');
-        }
-        return await res.json(); // { fileId, url, webViewLink, fileName, isPdf }
+    // ── COMPRESIÓN DE IMÁGENES (evita error "memoria llena") ─────
+    async function compressImage(file, maxWidth = 1200, quality = 0.7) {
+        if (!file.type.startsWith('image/')) return file;
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    canvas.toBlob((blob) => {
+                        resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                    }, 'image/jpeg', quality);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
     }
 
-    // ── GUARDAR ATTACHMENT EN SUPABASE ───────────────────────────
-    async function saveAttachment(entityType, entityId, attachmentKey, driveResult, originalFile) {
-        const payload = {
-            entity_type:      entityType,
-            entity_id:        String(entityId),
-            attachment_key:   attachmentKey,
-            storage_path:     driveResult.fileId,
-            public_url:       driveResult.url,
-            file_name:        driveResult.fileName || originalFile.name,
-            file_type:        originalFile.type || '',
-            file_size_bytes:  originalFile.size || 0,
-            is_pdf:           driveResult.isPdf || false
+    // ── SUBIR A SUPABASE STORAGE Y REGISTRAR EN attachments ─────
+    async function uploadToStorage(file, entityType, entityId, attachmentKey) {
+        const compressed = await compressImage(file);
+        const ts = Date.now();
+        const safe = compressed.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `temp/${entityType}/${entityId}/${attachmentKey}/${ts}_${safe}`;
+
+        const { data: uploadData, error: uploadErr } = await _supabase.storage
+            .from('ipdd-attachments')
+            .upload(path, compressed, {
+                cacheControl: '3600',
+                contentType: compressed.type || 'application/octet-stream'
+            });
+
+        if (uploadErr) throw new Error(`Storage: ${uploadErr.message}`);
+
+        const { data: { publicUrl } } = _supabase.storage
+            .from('ipdd-attachments')
+            .getPublicUrl(path);
+
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || (file.type && file.type.includes('pdf'));
+
+        const { data: attData, error: attErr } = await _supabase
+            .from('attachments')
+            .insert({
+                entity_type: entityType,
+                entity_id: String(entityId),
+                attachment_key: attachmentKey,
+                storage_path: path,
+                public_url: publicUrl,
+                file_name: file.name,
+                file_type: compressed.type || file.type,
+                file_size_bytes: compressed.size,
+                is_pdf: isPdf
+            })
+            .select('id')
+            .single();
+
+        if (attErr) throw new Error(`DB: ${attErr.message}`);
+
+        return {
+            _supabase_id: attData.id,
+            url: publicUrl,
+            name: file.name,
+            isPdf: isPdf,
+            driveFileId: path
         };
-        const { data, error } = await _supabase.from('attachments').insert(payload).select('id').single();
-        if (error) throw error;
-        return { ...driveResult, _supabase_id: data.id };
     }
 
     // ── UPLOADER GENÉRICO (seleccionar archivo) ──────────────────
@@ -2061,103 +2485,79 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         let inp = document.createElement('input');
         inp.type = 'file';
         inp.accept = accept;
-        inp.onchange = e => { let f = e.target.files[0]; if(f) callback(f); };
+        inp.onchange = e => { let f = e.target.files[0]; if(f) { showUploadSpinner(); callback(f).finally(() => hideUploadSpinner()); } };
         inp.click();
     }
 
     // ── TRIGGER UPLOADERS POR TIPO ───────────────────────────────
     function triggerUploadMensual(churchId, key) {
         const keyMap = {
-            'adjuntos_comprobante_deposito': { sub: 'deposito', attKey: 'comprobante_deposito' },
-            'adjuntos_relatorio_fisico':     { sub: 'relatorio', attKey: 'relatorio_fisico' },
-            'adjuntos_llave_foto':           { sub: 'cofre', attKey: 'llave_foto' },
-            'adjuntos_pass_foto':            { sub: 'cofre', attKey: 'pass_foto' }
+            'adjuntos_comprobante_deposito': 'comprobante_deposito',
+            'adjuntos_relatorio_fisico':     'relatorio_fisico',
+            'adjuntos_llave_foto':           'llave_foto',
+            'adjuntos_pass_foto':            'pass_foto'
         };
-        const meta = keyMap[key] || { sub: key, attKey: key };
+        const attKey = keyMap[key] || key;
 
         createUploader(async (file) => {
-            showUploadSpinner();
             try {
                 const church = db.find(c => c.id === churchId);
                 let m = getMensualData(church);
-
-                // Asegurarse que el monthly_report existe en Supabase
                 if (!m._supabase_id) {
                     const payload = { church_id: churchId, month_key: globalMonth, entrada: m.entrada || 0, saida: m.saida || 0, saldo: m.saldo || 0, envio_relatorio: 'NÃO' };
                     const { data } = await _supabase.from('monthly_reports').upsert(payload, { onConflict: 'church_id,month_key' }).select('id').single();
                     if (data) m._supabase_id = data.id;
                 }
-
-                const driveResult = await uploadToDrive(file, churchId, 'monthly', `${globalMonth}/${meta.sub}`);
-                const saved = await saveAttachment('monthly_report', m._supabase_id, meta.attKey, driveResult, file);
-
-                m[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                const saved = await uploadToStorage(file, 'monthly_report', m._supabase_id, attKey);
+                m[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.name, isPdf: saved.isPdf, driveFileId: saved.driveFileId });
                 renderAllTables();
-                showToast('✅ Archivo subido a Drive.', 'success');
+                showToast('✅ Archivo subido.', 'success');
             } catch(err) {
-                showToast(`Error al subir: ${err.message}`, 'error');
-            } finally {
-                hideUploadSpinner();
+                showToast(`Error: ${err.message}`, 'error');
             }
         });
     }
 
     function triggerUploadBase(churchId, key) {
-        const subMap = {
-            'contrato_doc': 'contrato', 'agua_recibo': 'recibos', 'luz_recibo': 'recibos',
-            'internet_recibo': 'recibos', 'telefono_recibo': 'recibos', 'fotos_inventario': 'inventario'
-        };
         createUploader(async (file) => {
-            showUploadSpinner();
             try {
                 const church = db.find(c => c.id === churchId);
-                const driveResult = await uploadToDrive(file, churchId, 'churches', subMap[key] || key);
-                const saved = await saveAttachment('church', churchId, key, driveResult, file);
-                church.adjuntos_base[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                const saved = await uploadToStorage(file, 'church', churchId, key);
+                church.adjuntos_base[key].push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.name, isPdf: saved.isPdf, driveFileId: saved.driveFileId });
                 renderAllTables();
-                showToast('✅ Archivo subido a Drive.', 'success');
+                showToast('✅ Archivo subido.', 'success');
             } catch(err) {
-                showToast(`Error al subir: ${err.message}`, 'error');
-            } finally {
-                hideUploadSpinner();
+                showToast(`Error: ${err.message}`, 'error');
             }
         });
     }
 
     function triggerUploadMemberFicha(churchId, idx) {
         createUploader(async (file) => {
-            showUploadSpinner();
             try {
                 const church = db.find(c => c.id === churchId);
                 const mem = church.miembros_list[idx];
-                const driveResult = await uploadToDrive(file, churchId, 'members', 'ficha');
-                const saved = await saveAttachment('member', mem._supabase_id, 'adjuntos_ficha', driveResult, file);
-                mem.adjuntos_ficha.push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: saved.isPdf, driveFileId: saved.fileId });
+                const saved = await uploadToStorage(file, 'member', mem._supabase_id, 'adjuntos_ficha');
+                mem.adjuntos_ficha.push({ _supabase_id: saved._supabase_id, url: saved.url, name: saved.name, isPdf: saved.isPdf, driveFileId: saved.driveFileId });
                 document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
-                showToast('✅ Ficha subida a Drive.', 'success');
+                showToast('✅ Ficha subida.', 'success');
             } catch(err) {
-                showToast(`Error al subir ficha: ${err.message}`, 'error');
-            } finally {
-                hideUploadSpinner();
+                showToast(`Error: ${err.message}`, 'error');
             }
         });
     }
 
     function triggerUploadMemberProfile(churchId, idx) {
         createUploader(async (file) => {
-            showUploadSpinner();
             try {
                 const church = db.find(c => c.id === churchId);
                 const mem = church.miembros_list[idx];
-                const driveResult = await uploadToDrive(file, churchId, 'members', 'perfil');
-                const saved = await saveAttachment('member', mem._supabase_id, 'foto_perfil', driveResult, file);
-                mem.foto_perfil = [{ _supabase_id: saved._supabase_id, url: saved.url, name: saved.fileName, isPdf: false, driveFileId: saved.fileId }];
+                const saved = await uploadToStorage(file, 'member', mem._supabase_id, 'foto_perfil');
+                mem.foto_perfil = [{ _supabase_id: saved._supabase_id, url: saved.url, name: saved.name, isPdf: false, driveFileId: saved.driveFileId }];
                 document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
-                showToast('✅ Foto de perfil actualizada.', 'success');
+                showToast('✅ Foto subida.', 'success');
             } catch(err) {
-                showToast(`Error al subir foto: ${err.message}`, 'error');
-            } finally {
-                hideUploadSpinner();
+                showToast(`Error: ${err.message}`, 'error');
             }
         }, 'image/*');
     }
@@ -2174,13 +2574,12 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
 
         setSyncStatus('syncing');
         try {
-            // Eliminar de Supabase attachments
             if (fileObj?._supabase_id) {
                 await _supabase.from('attachments').delete().eq('id', fileObj._supabase_id);
             }
-            // Eliminar de Drive (best effort)
-            if (fileObj?.driveFileId) {
-                fetch(`${DRIVE_PROXY_URL}/file/${fileObj.driveFileId}`, { method: 'DELETE' }).catch(() => {});
+            // Si el archivo aún está en Supabase Storage (empieza con temp/), eliminarlo
+            if (fileObj?.driveFileId && fileObj.driveFileId.startsWith('temp/')) {
+                await _supabase.storage.from('ipdd-attachments').remove([fileObj.driveFileId]);
             }
 
             await logHistory("Eliminación de Archivo", `Se eliminó un archivo (Doc/Foto) de tipo <b>${key}</b> en la sede de ${church.ciudad}.`, churchId);
