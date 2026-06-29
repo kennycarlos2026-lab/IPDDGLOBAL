@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPDD - Sistema Global de Gestión Modular</title>
+    <title>IPDD - Sistema Global de Gestão Modular</title>
     <!-- SUPABASE SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
@@ -329,74 +329,74 @@
 <body>
 
     <div class="top-nav">
-        <h2>⛪ IPDD Sistema Global <span style="font-size:12px; font-weight:normal; margin-left:10px; background:#2563eb; color:white; padding:2px 8px; border-radius:12px;">Base Completa + Papelera/Historial Seguro</span></h2>
+        <h2>⛪ IPDD Sistema Global <span style="font-size:12px; font-weight:normal; margin-left:10px; background:#2563eb; color:white; padding:2px 8px; border-radius:12px;">Base Completa + Lixeira/Histórico Seguro</span></h2>
         <div class="nav-controls">
-            <span id="sync-badge" class="sync-status synced" title="Estado de sincronización con Supabase">&#x2705; Sincronizado</span>
-            <label style="font-size:12px; font-weight:bold; color:white;">Mes Contable:</label>
+            <span id="sync-badge" class="sync-status synced" title="Estado de sincronização com Supabase">&#x2705; Sincronizado</span>
+            <label style="font-size:12px; font-weight:bold; color:white;">Mês Contábil:</label>
             <input type="month" id="global-month" class="month-selector" onchange="changeMonth()">
         </div>
     </div>
 
     <div class="tabs-header">
-        <button class="tab-btn active" onclick="switchTab('tab-iglesias')">🏢 1. Módulo Iglesias y Ficha</button>
-        <button class="tab-btn" onclick="switchTab('tab-contratos')">📄 2. Inmuebles e Inventario</button>
-        <button class="tab-btn" onclick="switchTab('tab-cofres')" style="color:var(--warning); font-weight:bold;">🔐 3. Cofres de Seguridad</button>
-        <button class="tab-btn" onclick="switchTab('tab-membresia')">👥 4. Módulo de Membresía</button>
-        <button class="tab-btn" onclick="switchTab('tab-finanzas')" style="color:var(--success); font-weight:bold;">💰 5. Finanzas y Reportes</button>
+        <button class="tab-btn active" onclick="switchTab('tab-iglesias')">🏢 1. Módulo Igrejas e Ficha</button>
+        <button class="tab-btn" onclick="switchTab('tab-contratos')">📄 2. Imóveis e Inventário</button>
+        <button class="tab-btn" onclick="switchTab('tab-cofres')" style="color:var(--warning); font-weight:bold;">🔐 3. Cofres de Segurança</button>
+        <button class="tab-btn" onclick="switchTab('tab-membresia')">👥 4. Módulo de Membresia</button>
+        <button class="tab-btn" onclick="switchTab('tab-finanzas')" style="color:var(--success); font-weight:bold;">💰 5. Finanças e Relatórios</button>
     </div>
 
     <div class="main-content">
         
         <div class="action-bar" style="display: flex; gap: 15px; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
             <div style="flex: 1;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Búsqueda Inteligente Global (Sedes y Miembros)</label><br>
-                <input type="text" id="global-search" placeholder="Buscar por código ID, sede, país, estado, pastor, nombre de miembro, documento..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px;" oninput="renderAllTables()">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Busca Inteligente Global (Sedes e Membros)</label><br>
+                <input type="text" id="global-search" placeholder="Buscar por código ID, sede, país, estado, pastor, nome de membro, documento..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px;" oninput="renderAllTables()">
             </div>
             <div>
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Operaciones Maestras</label><br>
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-dark);">Operações Mestras</label><br>
                 <div style="display: flex; gap: 8px; margin-top: 5px;">
-                    <button class="btn btn-green" onclick="openAddChurchModal()">➕ Registrar Nueva Sede</button>
-                    <button class="btn" style="background:#0ea5e9;" onclick="window.print()">🖨️ Imprimir Vista / Exportar PDF</button>
-                    <button class="btn" style="background:#10b981;" onclick="exportCSV()">📥 Descargar CSV</button>
-                    <button class="btn" style="background:#475569;" onclick="openHistoryModal()">🗑️ Historial / Papelera</button>
+                    <button class="btn btn-green" onclick="openAddChurchModal()">➕ Registrar Nova Sede</button>
+                    <button class="btn" style="background:#0ea5e9;" onclick="window.print()">🖨️ Imprimir Visão / Exportar PDF</button>
+                    <button class="btn" style="background:#10b981;" onclick="exportCSV()">📥 Baixar CSV</button>
+                    <button class="btn" style="background:#475569;" onclick="openHistoryModal()">🗑️ Histórico / Lixeira</button>
                 </div>
             </div>
         </div>
 
         <div id="tab-iglesias" class="tab-panel active">
-            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🏢 Fichas de Ubicación, Fechas y Liderazgo Completo</h3>
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🏢 Fichas de Localização, Datas e Liderança Completa</h3>
             <div id="wrapper-iglesias"></div>
         </div>
 
         <div id="tab-contratos" class="tab-panel">
-            <h3 style="margin-bottom: 5px; color: var(--text-dark);">📄 Control de Inmuebles, Servicios Básicos e Inventario</h3>
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">📄 Controle de Imóveis, Serviços Básicos e Inventário</h3>
             <div id="wrapper-contratos"></div>
         </div>
 
         <div id="tab-cofres" class="tab-panel">
-            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🔐 Registro Restringido de Llaves y Custodios</h3>
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">🔐 Registro Restrito de Chaves e Custódios</h3>
             <div id="wrapper-cofres"></div>
         </div>
 
         <div id="tab-membresia" class="tab-panel">
-            <h3 style="margin-bottom: 5px; color: var(--text-dark);">👥 Control y Desglose de Membresía Local</h3>
-            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Listado maestro para administrar miembros. Los miembros desligados, expulsados o fallecidos se mantienen en el historial pero <b>no suman</b> en el total contable.</p>
+            <h3 style="margin-bottom: 5px; color: var(--text-dark);">👥 Controle e Detalhamento de Membresia Local</h3>
+            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Lista mestra para administrar membros. Os membros desligados, expulsos ou falecidos são mantidos no histórico mas <b>não somam</b> no total contábil.</p>
             <div id="wrapper-membresia"></div>
         </div>
 
         <div id="tab-finanzas" class="tab-panel">
-            <h3 style="margin-bottom: 10px; color: var(--text-dark);">💰 Central de Cuentas, Flujo de Caja y Consolidación</h3>
+            <h3 style="margin-bottom: 10px; color: var(--text-dark);">💰 Central de Contas, Fluxo de Caixa e Consolidação</h3>
             
             <div class="dashboard-grid no-print">
-                <div class="dash-card"><h4>Sedes Evaluadas</h4><div class="val" id="dash-tot-churches">0</div></div>
-                <div class="dash-card"><h4>Ingresos (Mes Actual)</h4><div class="val" style="color: var(--success);" id="dash-entradas">R$ 0,00</div></div>
-                <div class="dash-card"><h4>Egresos (Mes Actual)</h4><div class="val" style="color: var(--danger);" id="dash-saidas">R$ 0,00</div></div>
-                <div class="dash-card"><h4>Saldo (Mes Actual)</h4><div class="val" style="color: var(--accent);" id="dash-saldo">R$ 0,00</div></div>
+                <div class="dash-card"><h4>Sedes Avaliadas</h4><div class="val" id="dash-tot-churches">0</div></div>
+                <div class="dash-card"><h4>Receitas (Mês Atual)</h4><div class="val" style="color: var(--success);" id="dash-entradas">R$ 0,00</div></div>
+                <div class="dash-card"><h4>Despesas (Mês Atual)</h4><div class="val" style="color: var(--danger);" id="dash-saidas">R$ 0,00</div></div>
+                <div class="dash-card"><h4>Saldo (Mês Atual)</h4><div class="val" style="color: var(--accent);" id="dash-saldo">R$ 0,00</div></div>
             </div>
 
             <div class="no-print" style="margin-bottom:20px; display:flex; gap:10px;">
-                <button class="btn" id="btn-modo-mensual" style="background:var(--primary); font-size:14px;" onclick="setModoM5('mensual')">📊 Visión Mensual Detallada</button>
-                <button class="btn" id="btn-modo-historico" style="background:#64748b; font-size:14px;" onclick="setModoM5('historico')">📅 Ver Historial 3 Meses Global</button>
+                <button class="btn" id="btn-modo-mensual" style="background:var(--primary); font-size:14px;" onclick="setModoM5('mensual')">📊 Visão Mensal Detalhada</button>
+                <button class="btn" id="btn-modo-historico" style="background:#64748b; font-size:14px;" onclick="setModoM5('historico')">📅 Ver Histórico 3 Meses Global</button>
             </div>
 
             <div id="master-report-area"></div>
@@ -406,25 +406,25 @@
     <div class="editor-modal" id="history-modal">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h3 style="color: var(--danger);">🛡️ Historial de Eliminación y Auditoría</h3>
+                <h3 style="color: var(--danger);">🛡️ Histórico de Exclusão e Auditoria</h3>
                 <button class="close-btn" onclick="closeModal('history-modal')">✖</button>
             </div>
-            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Aquí se registran las acciones críticas y archivos eliminados de forma definitiva. Usa esta bandeja para mantener la base de datos limpia de registros basuras. <b>Acceso protegido.</b></p>
+            <p style="font-size:12px; margin-bottom:15px; color:var(--text-main);">Aqui são registradas as ações críticas e arquivos excluídos definitivamente. Use esta bandeja para manter o banco de dados limpo. <b>Acesso protegido.</b></p>
             <div class="table-wrapper" style="max-height: 400px; overflow-y: auto;">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 140px;">Fecha y Hora</th>
-                            <th>Tipo de Acción</th>
-                            <th>Detalles del Registro</th>
-                            <th style="text-align: center;">Opciones</th>
+                            <th style="width: 140px;">Data e Hora</th>
+                            <th>Tipo de Ação</th>
+                            <th>Detalhes do Registro</th>
+                            <th style="text-align: center;">Opções</th>
                         </tr>
                     </thead>
                     <tbody id="history-body"></tbody>
                 </table>
             </div>
             <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
-                <button class="btn btn-gray" onclick="closeModal('history-modal')">Cerrar Historial</button>
+                <button class="btn btn-gray" onclick="closeModal('history-modal')">Fechar Histórico</button>
             </div>
         </div>
     </div>
@@ -432,7 +432,7 @@
     <div class="editor-modal" id="editor-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Actualizar Información Modular</h3>
+                <h3 id="modal-title">Atualizar Informações Modulares</h3>
                 <button class="close-btn" onclick="closeModal('editor-modal')">✖</button>
             </div>
             <input type="hidden" id="edit-id">
@@ -440,7 +440,7 @@
             <div id="dynamic-form-area"></div>
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
                 <button class="btn btn-gray" onclick="closeModal('editor-modal')">Cancelar</button>
-                <button class="btn btn-green" onclick="saveData()">💾 Guardar Cambios</button>
+                <button class="btn btn-green" onclick="saveData()">💾 Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -448,7 +448,7 @@
     <div class="editor-modal" id="dossier-modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header no-print">
-                <h3>📄 Dossier Técnico de la Iglesia</h3>
+                <h3>📄 Dossiê Técnico da Igreja</h3>
                 <div style="display:flex; gap:10px;">
                     <button class="btn" style="background:#0ea5e9;" onclick="printDossier()">🖨️ Imprimir Ficha / PDF</button>
                     <button class="close-btn" onclick="closeModal('dossier-modal')">✖</button>
@@ -461,15 +461,15 @@
     <div class="editor-modal" id="add-member-modal">
         <div class="modal-content" style="max-width: 750px;">
             <div class="modal-header">
-                <h3 id="modal-member-title">➕ Añadir Nuevo Registro Ministerial</h3>
+                <h3 id="modal-member-title">➕ Adicionar Novo Registro Ministerial</h3>
                 <button class="close-btn" onclick="closeModal('add-member-modal')">✖</button>
             </div>
             <input type="hidden" id="new-mem-church-id">
             <input type="hidden" id="edit-mem-idx">
             <div class="form-grid">
-                <div class="form-group"><label>Nombre Completo</label><input type="text" id="new_mem_nome"></div>
+                <div class="form-group"><label>Nome Completo</label><input type="text" id="new_mem_nome"></div>
                 <div class="form-group"><label>CPF / Documento</label><input type="text" id="new_mem_cpf" placeholder="000.000.000-00"></div>
-                <div class="form-group"><label>Teléfono / Celular</label><input type="text" id="new_mem_tel"></div>
+                <div class="form-group"><label>Telefone / Celular</label><input type="text" id="new_mem_tel"></div>
                 <div class="form-group"><label>E-mail</label><input type="email" id="new_mem_email"></div>
                 <div class="form-group"><label>Cargo Eclesiástico</label>
                     <select id="new_mem_cargo">
@@ -477,55 +477,55 @@
                         <option value="Diácono">Diácono</option>
                         <option value="Cooperador">Cooperador</option>
                         <option value="Cooperadora">Cooperadora</option>
-                        <option value="Miembro">Miembro</option>
+                        <option value="Membro">Membro</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Fecha de Ingreso a Sede</label><input type="date" id="new_mem_fecha"></div>
+                <div class="form-group"><label>Data de Ingresso na Sede</label><input type="date" id="new_mem_fecha"></div>
                 
                 <div class="form-group full" style="margin-top: 10px; border-top:1px dashed #cbd5e1; padding-top:15px;">
-                    <label>Situación Actual del Miembro</label>
+                    <label>Situação Atual do Membro</label>
                     <select id="new_mem_situacion" onchange="toggleMemberStatusFields()">
-                        <option value="En comunión activo">En comunión activo</option>
-                        <option value="Inactivo">Inactivo</option>
-                        <option value="En disciplina">En disciplina</option>
-                        <option value="Trasladado">Trasladado (Con Carta)</option>
+                        <option value="Em comunhão ativo">Em comunhão ativo</option>
+                        <option value="Inativo">Inativo</option>
+                        <option value="Em disciplina">Em disciplina</option>
+                        <option value="Transferido">Transferido (Com Carta)</option>
                         <option value="Desligado">Desligado (Retirado voluntariamente)</option>
-                        <option value="Expulsado/excluido">Expulsado / Excluido</option>
-                        <option value="Fallecido">Fallecido</option>
+                        <option value="Expulso/excluído">Expulso / Excluído</option>
+                        <option value="Falecido">Falecido</option>
                     </select>
                 </div>
 
                 <div id="fields_disciplina" style="display:none; grid-column: 1 / -1; background:#fef2f2; padding:15px; border-radius:6px; border:1px solid #fca5a5;">
-                    <h4 style="font-size:12px; color:var(--danger); margin-bottom:10px; text-transform:uppercase;">Detalles de la Disciplina</h4>
+                    <h4 style="font-size:12px; color:var(--danger); margin-bottom:10px; text-transform:uppercase;">Detalhes da Disciplina</h4>
                     <div class="form-grid" style="padding:0; border:none; background:transparent; gap:10px;">
-                        <div class="form-group full"><label>Motivo de la Disciplina</label><input type="text" id="new_mem_disc_motivo" placeholder="Describa el motivo..."></div>
-                        <div class="form-group"><label>Disciplinado por (Pastor)</label><input type="text" id="new_mem_disc_pastor" placeholder="Nombre del pastor que disciplina..."></div>
-                        <div class="form-group"><label>Tiempo de Disciplina</label>
+                        <div class="form-group full"><label>Motivo da Disciplina</label><input type="text" id="new_mem_disc_motivo" placeholder="Descreva o motivo..."></div>
+                        <div class="form-group"><label>Disciplinado por (Pastor)</label><input type="text" id="new_mem_disc_pastor" placeholder="Nome do pastor que disciplina..."></div>
+                        <div class="form-group"><label>Tempo de Disciplina</label>
                             <select id="new_mem_disc_tiempo" onchange="calcDisciplinaFin()">
-                                <option value="1 mes">1 mes</option><option value="2 meses">2 meses</option><option value="3 meses">3 meses</option>
+                                <option value="1 mês">1 mês</option><option value="2 meses">2 meses</option><option value="3 meses">3 meses</option>
                                 <option value="4 meses">4 meses</option><option value="5 meses">5 meses</option><option value="6 meses">6 meses</option>
-                                <option value="1 año">1 año</option><option value="2 años">2 años</option><option value="Indefinido">Indefinido</option>
-                                <option value="Otro">Otro (Elegir fecha manual)</option>
+                                <option value="1 ano">1 ano</option><option value="2 anos">2 anos</option><option value="Indefinido">Indefinido</option>
+                                <option value="Outro">Outro (Escolher data manual)</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Fecha de Inicio</label><input type="date" id="new_mem_disc_inicio" onchange="calcDisciplinaFin()"></div>
-                        <div class="form-group"><label>Fecha de Fin Calculada</label><input type="date" id="new_mem_disc_fin" readonly></div>
+                        <div class="form-group"><label>Data de Início</label><input type="date" id="new_mem_disc_inicio" onchange="calcDisciplinaFin()"></div>
+                        <div class="form-group"><label>Data de Fim Calculada</label><input type="date" id="new_mem_disc_fin" readonly></div>
                     </div>
                 </div>
 
                 <div id="fields_estado_fecha" style="display:none; grid-column: 1 / -1; background:#f8fafc; padding:15px; border-radius:6px; border:1px solid #cbd5e1;">
-                    <h4 style="font-size:12px; color:var(--primary); margin-bottom:10px; text-transform:uppercase;">Detalles del Estado</h4>
+                    <h4 style="font-size:12px; color:var(--primary); margin-bottom:10px; text-transform:uppercase;">Detalhes do Estado</h4>
                     <div class="form-grid" style="padding:0; border:none; background:transparent; gap:10px;">
-                        <div class="form-group"><label id="label_estado_fecha">Fecha del Suceso</label><input type="date" id="new_mem_estado_fecha"></div>
-                        <div class="form-group full"><label>Observación Detallada (Motivo / Carta de Recomendación / etc)</label><input type="text" id="new_mem_estado_obs" placeholder="Añada aquí los detalles necesarios..."></div>
+                        <div class="form-group"><label id="label_estado_fecha">Data do Ocorrido</label><input type="date" id="new_mem_estado_fecha"></div>
+                        <div class="form-group full"><label>Observação Detalhada (Motivo / Carta de Recomendação / etc)</label><input type="text" id="new_mem_estado_obs" placeholder="Adicione aqui os detalhes necessários..."></div>
                     </div>
                 </div>
 
-                <div class="form-group full" style="margin-top: 10px;"><label>Observación General (Opcional)</label><textarea id="new_mem_obs"></textarea></div>
+                <div class="form-group full" style="margin-top: 10px;"><label>Observação Geral (Opcional)</label><textarea id="new_mem_obs"></textarea></div>
             </div>
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
                 <button class="btn btn-gray" onclick="closeModal('add-member-modal')">Cancelar</button>
-                <button class="btn btn-green" onclick="saveNewMember()">💾 Guardar Información</button>
+                <button class="btn btn-green" onclick="saveNewMember()">💾 Salvar Informações</button>
             </div>
         </div>
     </div>
@@ -533,24 +533,24 @@
     <div class="editor-modal" id="add-church-modal">
         <div class="modal-content" style="max-width: 750px;">
             <div class="modal-header">
-                <h3>APERTURA Y REGISTRO DE NUEVA SEDE</h3>
+                <h3>ABERTURA E REGISTRO DE NOVA SEDE</h3>
                 <button class="close-btn" onclick="closeModal('add-church-modal')">✖</button>
             </div>
             <div style="background:#eff6ff; padding:15px; border-radius:6px; border:1px solid #bfdbfe; margin-bottom:15px; font-size:12px; color:var(--text-main);">
-                <b>Regla de IDs:</b> El ID es generado automáticamente. Ex: Brasil (Ceará) = <span style="font-weight:bold; color:var(--accent);">BR CE-001</span>.
+                <b>Regra de IDs:</b> O ID é gerado automaticamente. Ex: Brasil (Ceará) = <span style="font-weight:bold; color:var(--accent);">BR CE-001</span>.
             </div>
             <div class="form-grid">
                 <div class="form-group"><label>País</label><input type="text" id="add_pais" list="paises_list" oninput="updateStatesList()" autocomplete="off"><datalist id="paises_list"></datalist></div>
-                <div class="form-group"><label>Estado / Región</label><input type="text" id="add_estado" list="estados_list" oninput="generateDynamicID()" autocomplete="off"><datalist id="estados_list"></datalist></div>
+                <div class="form-group"><label>Estado / Região</label><input type="text" id="add_estado" list="estados_list" oninput="generateDynamicID()" autocomplete="off"><datalist id="estados_list"></datalist></div>
                 <div class="form-group"><label>ID Permanente</label><input type="text" id="add_id" style="font-weight:bold; color:var(--accent); background:#f8fafc;"></div>
-                <div class="form-group"><label>Ciudad / Sede</label><input type="text" id="add_cidade"></div>
-                <div class="form-group full"><label>Dirección Física</label><input type="text" id="add_endereco"></div>
+                <div class="form-group"><label>Cidade / Sede</label><input type="text" id="add_cidade"></div>
+                <div class="form-group full"><label>Endereço Físico</label><input type="text" id="add_endereco"></div>
                 <div class="form-group"><label>1º Dirigente (Pastor)</label><input type="text" id="add_pastor"></div>
-                <div class="form-group"><label>Teléfono Dirigente</label><input type="text" id="add_cel_pastor" value="+55 "></div>
+                <div class="form-group"><label>Telefone do Dirigente</label><input type="text" id="add_cel_pastor" value="+55 "></div>
             </div>
             <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
                 <button class="btn btn-gray" onclick="closeModal('add-church-modal')">Cancelar</button>
-                <button class="btn btn-green" onclick="submitNewChurch()">💾 Confirmar Apertura</button>
+                <button class="btn btn-green" onclick="submitNewChurch()">💾 Confirmar Abertura</button>
             </div>
         </div>
     </div>
@@ -559,8 +559,8 @@
     <div class="upload-overlay" id="upload-overlay">
         <div class="upload-box">
             <div class="spinner"></div>
-            <p>Subiendo archivo a Google Drive...</p>
-            <small>Por favor espera, esto puede tomar unos segundos.</small>
+            <p>Enviando arquivo para o Storage...</p>
+            <small>Por favor aguarde, isso pode levar alguns segundos.</small>
         </div>
     </div>
 
@@ -569,7 +569,7 @@
 
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-        <img id="lightbox-img" src="" alt="Vista">
+        <img id="lightbox-img" src="" alt="Visualização">
     </div>
 
 <script>
@@ -582,13 +582,13 @@
     const SUPABASE_KEY = 'sb_publishable_HO12D11b34-b6MXOU9AOXQ__20giRiu';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ── BASE DE DATOS EN MEMORIA (se carga desde Supabase) ───────
+    // ── BASE DE DADOS EM MEMÓRIA (carregada do Supabase) ─────────
     let db = [];
 
-    // ── HISTORIAL EN MEMORIA (se carga desde Supabase) ───────────
+    // ── HISTÓRICO EM MEMÓRIA (carregado do Supabase) ─────────────
     let systemHistory = [];
     
-    // ── CONTRASEÑA PARA ELIMINAR O ENTRAR AL HISTORIAL ───────────
+    // ── SENHA PARA EXCLUIR OU ENTRAR NO HISTÓRICO ─────────────────
     const ADMIN_PWD = "admin123"; 
 
     // ── TOAST NOTIFICATIONS ──────────────────────────────────────
@@ -606,8 +606,8 @@
     function setSyncStatus(status) {
         const badge = document.getElementById('sync-badge');
         if (!badge) return;
-        if (status === 'syncing') { badge.className = 'sync-status syncing'; badge.textContent = '⏳ Guardando...'; }
-        else if (status === 'error') { badge.className = 'sync-status error'; badge.textContent = '❌ Error sync'; }
+        if (status === 'syncing') { badge.className = 'sync-status syncing'; badge.textContent = '⏳ Salvando...'; }
+        else if (status === 'error') { badge.className = 'sync-status error'; badge.textContent = '❌ Erro de sincronia'; }
         else { badge.className = 'sync-status synced'; badge.textContent = '✅ Sincronizado'; }
     }
 
@@ -634,11 +634,11 @@
     }
 
     function openHistoryModal() {
-        let pwd = prompt("ACCESO RESTRINGIDO A LA PAPELERA.\n\nPor favor, ingrese la contraseña de administrador:");
+        let pwd = prompt("ACESSO RESTRITO À LIXEIRA.\n\nPor favor, digite a senha de administrador:");
         if (pwd === ADMIN_PWD) {
             loadHistory();
         } else if (pwd !== null) {
-            alert("❌ Contraseña incorrecta. Acceso denegado.");
+            alert("❌ Senha incorreta. Acesso negado.");
         }
     }
 
@@ -664,7 +664,7 @@
     function renderHistory() {
         let tbody = document.getElementById("history-body");
         if (systemHistory.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:gray; font-weight:bold;">El historial y la papelera están limpios.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:gray; font-weight:bold;">O histórico e a lixeira estão limpos.</td></tr>`;
             return;
         }
         tbody.innerHTML = systemHistory.map((h, i) => `
@@ -673,14 +673,14 @@
                 <td><span class="badge badge-warning" style="background:#fef2f2; color:var(--danger); border:1px solid var(--danger);">${h.action}</span></td>
                 <td><span style="font-size:12px;">${h.details}</span></td>
                 <td style="text-align: center;">
-                    <button class="btn btn-red" style="padding:4px 8px; font-size:10px; background:var(--danger);" onclick="deleteFromHistory(${i}, '${h.id || ''}')">🗑️ Borrar Permanente</button>
+                    <button class="btn btn-red" style="padding:4px 8px; font-size:10px; background:var(--danger);" onclick="deleteFromHistory(${i}, '${h.id || ''}')">🗑️ Excluir Permanentemente</button>
                 </td>
             </tr>
         `).join('');
     }
 
     async function deleteFromHistory(i, supabaseId) {
-        if(confirm("¿Estás seguro de eliminar este registro del historial definitivamente?")) {
+        if(confirm("Tem certeza que deseja excluir este registro do histórico definitivamente?")) {
             systemHistory.splice(i, 1);
             renderHistory();
             // Eliminar de Supabase
@@ -897,7 +897,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         setSyncStatus('syncing');
         ['wrapper-iglesias','wrapper-contratos','wrapper-cofres','wrapper-membresia','master-report-area'].forEach(id => {
             let el = document.getElementById(id);
-            if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:#64748b;"><div style="font-size:32px; margin-bottom:12px;">⏳</div><b>Cargando datos desde Supabase...</b></div>';
+            if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:#64748b;"><div style="font-size:32px; margin-bottom:12px;">⏳</div><b>Carregando dados do Supabase...</b></div>';
         });
 
         await loadDataFromSupabase();
@@ -1039,13 +1039,13 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 };
             });
 
-            console.log(`✅ Supabase: ${db.length} sedes cargadas`);
+            console.log(`✅ Supabase: ${db.length} sedes carregadas`);
 
         } catch (err) {
-            console.error('❌ Error cargando desde Supabase:', err);
+            console.error('❌ Erro carregando do Supabase:', err);
             setSyncStatus('error');
-            showToast(`Error al conectar con Supabase: ${err.message}`, 'error', 6000);
-            // Fallback: cargar desde CSV (datos de muestra)
+            showToast(`Erro ao conectar com Supabase: ${err.message}`, 'error', 6000);
+            // Fallback: carregar do CSV (dados de exemplo)
             loadFromCSVFallback();
         }
     }
@@ -1063,9 +1063,9 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             }));
     }
 
-    // ── FALLBACK: cargar desde CSV si Supabase no está disponible ─
+    // ── FALLBACK: carregar do CSV se Supabase não estiver disponível ─
     function loadFromCSVFallback() {
-        console.warn('⚠️ Cargando datos de ejemplo desde CSV (modo offline)');
+        console.warn('⚠️ Carregando dados de exemplo do CSV (modo offline)');
         // Re-ejecutar la generación desde CSV (el código original)
         let parsedLines = parseCSV(rawCsvData);
         let counters = {};
@@ -1095,7 +1095,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 adjuntos_base: { contrato_doc: [], agua_recibo: [], luz_recibo: [], internet_recibo: [], telefono_recibo: [], fotos_inventario: [] }
             });
         }
-        showToast('Modo offline: datos de ejemplo cargados. Verifica la conexión con Supabase.', 'warning', 8000);
+        showToast('Modo offline: dados de exemplo carregados. Verifique a conexão com Supabase.', 'warning', 8000);
     }
 
 
@@ -1362,14 +1362,14 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             let isCountryCollapsed = collapsedStates[countryContentId] === true;
             let ccClass = isCountryCollapsed ? ' collapsed' : '';
             let sortMode = getSortMode(pais);
-            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+            let sortLabel = sortMode === 'creation' ? '🔢 Criação' : '🔤 A-Z';
 
             let html = `
                 <div class="country-section">
                     <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
                         <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Alterar ordem dos estados">${sortLabel}</button>
                             <span class="arrow">▼</span>
                         </div>
                     </div>
@@ -1411,17 +1411,17 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
 
 
     async function deleteChurch(id) {
-        if(confirm("ATENCIÓN: ¿Estás seguro que deseas ELIMINAR PERMANENTEMENTE esta sede y TODOS sus registros?")) {
+        if(confirm("ATENÇÃO: Tem certeza que deseja EXCLUIR PERMANENTEMENTE esta sede e TODOS os seus registros?")) {
             let church = db.find(c => c.id === id);
             setSyncStatus('syncing');
             try {
                 const { error } = await _supabase.from('churches').delete().eq('id', id);
                 if (error) throw error;
-                await logHistory("Sede / Iglesia Eliminada", `Se eliminó por completo la Sede de <b>${church.ciudad}</b> (${church.id}) y todo el registro de sus miembros y finanzas.`, id);
+                await logHistory("Sede / Igreja Excluída", `Foi excluída completamente a Sede de <b>${church.ciudad}</b> (${church.id}) e todo o registro de seus membros e finanças.`, id);
                 db = db.filter(c => c.id !== id);
                 renderAllTables();
                 setSyncStatus('synced');
-                showToast(`Sede ${church.ciudad} eliminada.`, 'warning');
+                showToast(`Sede ${church.ciudad} excluída.`, 'warning');
             } catch(err) {
                 setSyncStatus('error');
                 showToast(`Error al eliminar: ${err.message}`, 'error');
@@ -1433,9 +1433,9 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         buildTableBase(data,
             `<th>ID Sede / Estado</th><th>Localização / Dados Sede</th><th>Datas (Abert. / Inaug.)</th><th>Horários de Culto</th><th>Dirigentes (Telefones)</th><th>Financeiros (Telefones)</th><th>Ações e Dossiê</th>`,
             (c) => {
-                let statusBadge = c.estatus_iglesia === 'Abierta' || c.estatus_iglesia === 'Aberta' ? 'badge-success' : 'badge-danger';
+                let statusBadge = c.estatus_iglesia === 'Abierta' || c.estatus_iglesia === 'Aberta' || c.estatus_iglesia === 'Aberta' ? 'badge-success' : 'badge-danger';
                 return `<tr>
-                <td><span class="badge badge-info" style="font-size:12px; font-weight:bold; letter-spacing:0.5px;">${c.id}</span><br><span class="badge ${statusBadge}" style="margin-top:4px;">${c.estatus_iglesia}</span></td>
+                <td><span class="badge badge-info" style="font-size:12px; font-weight:bold; letter-spacing:0.5px;">${c.id}</span><br><span class="badge ${statusBadge}" style="margin-top:4px;">${c.estatus_iglesia.replace('Abierta','Aberta').replace('Cerrada','Fechada')}</span></td>
                 <td><strong style="color:var(--text-dark);">${c.nombre_iglesia}</strong><br><small>${c.estado}</small><br><span style="font-size:11px; color:var(--accent);">${c.direccion}</span></td>
                 <td><small><b>Abertura:</b> ${c.fecha_apertura ? c.fecha_apertura.split('-').reverse().join('/') : '---'}<br><b>Inauguração:</b> ${c.fecha_inauguracion ? c.fecha_inauguracion.split('-').reverse().join('/') : '---'}</small></td>
                 <td><small>${c.dias_culto}</small></td>
@@ -1443,11 +1443,11 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 <td><small><b>1º:</b> ${c.financiero1_nome} (${c.financiero1_tel})<br><b>2º:</b> ${c.financiero2_nome} (${c.financiero2_tel})</small></td>
                 <td style="text-align:center; vertical-align:middle; width: 60px;">
                     <div class="action-menu">
-                        <button class="menu-dots" onclick="toggleMenu(event, 'menu-church-${c.id}')" title="Opciones">⋮</button>
+                        <button class="menu-dots" onclick="toggleMenu(event, 'menu-church-${c.id}')" title="Opções">⋮</button>
                         <div class="menu-dropdown" id="menu-church-${c.id}">
-                            <button onclick="openEditor('${c.id}', 'iglesias')">✏️ Editar Datos Sede</button>
-                            <button onclick="openDossier('${c.id}')">📄 Ver Dossier PDF</button>
-                            <button class="del-btn" onclick="deleteChurch('${c.id}')">🗑️ Eliminar Sede Completa</button>
+                            <button onclick="openEditor('${c.id}', 'iglesias')">✏️ Editar Dados Sede</button>
+                            <button onclick="openDossier('${c.id}')">📄 Ver Dossiê PDF</button>
+                            <button class="del-btn" onclick="deleteChurch('${c.id}')">🗑️ Excluir Sede Completa</button>
                         </div>
                     </div>
                 </td>
@@ -1467,14 +1467,14 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             let isCountryCollapsed = collapsedStates[countryContentId] === true;
             let ccClass = isCountryCollapsed ? ' collapsed' : '';
             let sortMode = getSortMode(pais);
-            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+            let sortLabel = sortMode === 'creation' ? '🔢 Criação' : '🔤 A-Z';
 
             let html = `
                 <div class="country-section">
                     <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
                         <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Alterar ordem dos estados">${sortLabel}</button>
                             <span class="arrow">▼</span>
                         </div>
                     </div>
@@ -1517,15 +1517,15 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                         <div class="card-grid">
                             <div class="card-col">
                                 <h5>Dados do Imóvel</h5>
-                                <div class="card-item"><b>Condición:</b> <span class="badge badge-gray">${stContrato}</span></div>
-                                <div class="card-item"><b>Valor Mensual:</b> ${valorAluguel}</div>
+                                <div class="card-item"><b>Condição:</b> <span class="badge badge-gray">${stContrato}</span></div>
+                                <div class="card-item"><b>Valor Mensal:</b> ${valorAluguel}</div>
                                 <div class="card-item"><b>Titular:</b> <span>${c.contrato_titular || '---'}</span></div>
                                 ${isAlugado ? `
                                 <div class="contract-duration-box">
                                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <span>Vencimiento:</span><span class="time-val">${c.contrato_fin ? c.contrato_fin.split('-').reverse().join('/') : '---'}</span>
+                                        <span>Vencimento:</span><span class="time-val">${c.contrato_fin ? c.contrato_fin.split('-').reverse().join('/') : '---'}</span>
                                     </div>
-                                    <div style="font-size:11px; margin-top:2px;">Tiempo Restante: <b style="color:${rest==='Vencido'?'var(--danger)':'var(--text-main)'}">${rest}</b></div>
+                                    <div style="font-size:11px; margin-top:2px;">Tempo Restante: <b style="color:${rest==='Vencido'?'var(--danger)':'var(--text-main)'}">${rest}</b></div>
                                     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${pct > 90 ? 'var(--danger)' : 'var(--success)'};"></div></div>
                                 </div>
                                 ` : `<div style="font-size:11px; color:var(--text-muted); margin-top:10px; font-style:italic;">Imóvel próprio. Sem barra de contrato.</div>`}
@@ -1598,14 +1598,14 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             let isCountryCollapsed = collapsedStates[countryContentId] === true;
             let ccClass = isCountryCollapsed ? ' collapsed' : '';
             let sortMode = getSortMode(pais);
-            let sortLabel = sortMode === 'creation' ? '🔢 Creación' : '🔤 A-Z';
+            let sortLabel = sortMode === 'creation' ? '🔢 Criação' : '🔤 A-Z';
 
             let html = `
                 <div class="country-section">
                     <div class="country-header${ccClass}" onclick="toggleSectionCollapse('${countryContentId}', this)">
                         <span>${pais === 'Brasil' ? '🇧🇷' : '🌎'} ${pais.toUpperCase()}</span>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Cambiar orden de estados">${sortLabel}</button>
+                            <button class="sort-toggle-btn" onclick="event.stopPropagation(); toggleCountrySort('${pais}')" title="Alterar ordem dos estados">${sortLabel}</button>
                             <span class="arrow">▼</span>
                         </div>
                     </div>
@@ -1626,7 +1626,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                     <div class="state-content${scClass}" id="${stateContentId}">
                         <div class="table-wrapper" style="overflow:visible;">
                             <table class="data-table">
-                                <thead><tr><th>Iglesia / Sede</th><th>Resumen de Fichados</th><th>Acción Principal</th></tr></thead>
+                                <thead><tr><th>Igreja / Sede</th><th>Resumo de Registrados</th><th>Ação Principal</th></tr></thead>
                                 <tbody>`;
 
                 stateGroups[estado].forEach(c => {
@@ -1636,12 +1636,12 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                         <tr style="background:#f8fafc; border-top:2px solid var(--border);">
                             <td><b>${c.ciudad}</b><br><small>${c.id}</small></td>
                             <td>
-                                <span class="badge badge-success">${contables} Miembros Activos</span><br>
-                                <small style="color:var(--text-muted); font-size:10px;">${c.miembros_list.length} Registros en Historial</small>
+                                <span class="badge badge-success">${contables} Membros Ativos</span><br>
+                                <small style="color:var(--text-muted); font-size:10px;">${c.miembros_list.length} Registros no Histórico</small>
                             </td>
                             <td>
-                                <button class="btn btn-dark" onclick="toggleMembersRow('${c.id}')">🔽 Desglosar Miembros</button>
-                                <button class="btn btn-green" onclick="openAddMemberModal('${c.id}')">➕ Nuevo Registro</button>
+                                <button class="btn btn-dark" onclick="toggleMembersRow('${c.id}')">🔽 Detalhar Membros</button>
+                                <button class="btn btn-green" onclick="openAddMemberModal('${c.id}')">➕ Novo Registro</button>
                             </td>
                         </tr>
                         <tr id="row-members-${c.id}" style="display: ${isExpanded ? 'table-row' : 'none'}; background:white;">
@@ -1682,13 +1682,13 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
     }
 
     function getStatusBadge(status) {
-        if(status === 'En comunión activo') return '<span class="badge badge-success">Activo</span>';
-        if(status === 'Inactivo') return '<span class="badge badge-gray">Inactivo</span>';
-        if(status === 'En disciplina') return '<span class="badge badge-warning">En Disciplina</span>';
-        if(status === 'Trasladado') return '<span class="badge badge-info">Trasladado</span>';
+        if(status === 'Em comunhão ativo' || status === 'En comunión activo') return '<span class="badge badge-success">Ativo</span>';
+        if(status === 'Inativo' || status === 'Inactivo') return '<span class="badge badge-gray">Inativo</span>';
+        if(status === 'Em disciplina' || status === 'En disciplina') return '<span class="badge badge-warning">Em Disciplina</span>';
+        if(status === 'Transferido' || status === 'Trasladado') return '<span class="badge badge-info">Transferido</span>';
         if(status === 'Desligado') return '<span class="badge badge-danger">Desligado</span>';
-        if(status === 'Expulsado/excluido') return '<span class="badge badge-danger" style="background:#7f1d1d; color:white;">Expulsado</span>';
-        if(status === 'Fallecido') return '<span class="badge badge-dark">Fallecido</span>';
+        if(status === 'Expulso/excluído' || status === 'Expulsado/excluido') return '<span class="badge badge-danger" style="background:#7f1d1d; color:white;">Expulso</span>';
+        if(status === 'Falecido' || status === 'Fallecido') return '<span class="badge badge-dark">Falecido</span>';
         return `<span class="badge badge-gray">${status}</span>`;
     }
 
@@ -1697,23 +1697,23 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         let pPic = hasPic ? m.foto_perfil[0].url : 'https://via.placeholder.com/50?text=Foto';
         
         let extrasHtml = "";
-        if(m.situacion === 'En disciplina') {
+        if(m.situacion === 'Em disciplina' || m.situacion === 'En disciplina') {
             extrasHtml = `<div style="margin-top:6px; padding:6px; background:#fef2f2; border-left:2px solid var(--danger); font-size:10px;">
                 <b>Motivo:</b> ${m.disciplina_motivo || '---'}<br>
-                <b>Por:</b> ${m.disciplina_pastor || '---'} | <b>Tiempo:</b> ${m.disciplina_tiempo || '---'}<br>
-                <b>Desde:</b> ${m.disciplina_inicio ? m.disciplina_inicio.split('-').reverse().join('/') : '---'} <b>Hasta:</b> ${m.disciplina_fin ? m.disciplina_fin.split('-').reverse().join('/') : 'Indefinido'}
+                <b>Por:</b> ${m.disciplina_pastor || '---'} | <b>Tempo:</b> ${m.disciplina_tiempo || '---'}<br>
+                <b>Desde:</b> ${m.disciplina_inicio ? m.disciplina_inicio.split('-').reverse().join('/') : '---'} <b>Até:</b> ${m.disciplina_fin ? m.disciplina_fin.split('-').reverse().join('/') : 'Indefinido'}
             </div>`;
-        } else if (['Trasladado', 'Desligado', 'Expulsado/excluido', 'Fallecido'].includes(m.situacion)) {
+        } else if (['Transferido', 'Trasladado', 'Desligado', 'Expulso/excluído', 'Expulsado/excluido', 'Falecido', 'Fallecido'].includes(m.situacion)) {
             extrasHtml = `<div style="margin-top:6px; padding:6px; background:#f8fafc; border-left:2px solid var(--primary); font-size:10px;">
-                <b>Fecha Suceso:</b> ${m.estado_fecha ? m.estado_fecha.split('-').reverse().join('/') : '---'}<br>
+                <b>Data Ocorrido:</b> ${m.estado_fecha ? m.estado_fecha.split('-').reverse().join('/') : '---'}<br>
                 <b>Obs:</b> ${m.estado_obs || '---'}
             </div>`;
         }
 
         return `<tr>
             <td style="text-align:center; width:70px;">
-                <img src="${pPic}" class="photo-thumb profile" onclick="triggerUploadMemberProfile('${churchId}', ${idx})" title="Click para cambiar foto">
-                <div style="font-size:9px; color:var(--accent); cursor:pointer; margin-top:4px;" onclick="triggerUploadMemberProfile('${churchId}', ${idx})">Subir Foto</div>
+                <img src="${pPic}" class="photo-thumb profile" onclick="triggerUploadMemberProfile('${churchId}', ${idx})" title="Clique para trocar foto">
+                <div style="font-size:9px; color:var(--accent); cursor:pointer; margin-top:4px;" onclick="triggerUploadMemberProfile('${churchId}', ${idx})">Enviar Foto</div>
             </td>
             <td>
                 <span style="font-size:10px; color:var(--primary); font-weight:bold;">${m.id_miembro}</span><br>
@@ -1726,24 +1726,24 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             </td>
             <td>
                 <span class="badge badge-purple">${m.cargo}</span><br>
-                <small style="margin-top:4px; display:inline-block;">Ingresó: ${m.fecha_ingreso ? m.fecha_ingreso.split('-').reverse().join('/') : '---'}</small>
+                <small style="margin-top:4px; display:inline-block;">Ingressou: ${m.fecha_ingreso ? m.fecha_ingreso.split('-').reverse().join('/') : '---'}</small>
             </td>
             <td>
                 ${getStatusBadge(m.situacion)}
                 ${extrasHtml}
-                <div style="max-height: 40px; overflow-y: auto; font-size:10px; margin-top:6px; color:var(--text-muted);"><i>Gral: ${m.observacion || '---'}</i></div>
+                <div style="max-height: 40px; overflow-y: auto; font-size:10px; margin-top:6px; color:var(--text-muted);"><i>Geral: ${m.observacion || '---'}</i></div>
             </td>
             <td>
-                <button class="btn btn-gray" style="padding:2px 6px; font-size:9px; width:100%; margin-bottom:4px;" onclick="triggerUploadMemberFicha('${churchId}', ${idx})">📸 Subir Ficha</button>
+                <button class="btn btn-gray" style="padding:2px 6px; font-size:9px; width:100%; margin-bottom:4px;" onclick="triggerUploadMemberFicha('${churchId}', ${idx})">📸 Enviar Ficha</button>
                 <div class="photo-gallery" style="justify-content:center;">${renderGallery(m.adjuntos_ficha, {type:'member_ficha', churchId:churchId, key:'ficha', memberIdx:idx})}</div>
             </td>
             <td style="text-align:center; vertical-align:middle; width: 60px;">
                 <div class="action-menu">
-                    <button class="menu-dots" onclick="toggleMenu(event, 'menu-member-${churchId}-${idx}')" title="Opciones">⋮</button>
+                    <button class="menu-dots" onclick="toggleMenu(event, 'menu-member-${churchId}-${idx}')" title="Opções">⋮</button>
                     <div class="menu-dropdown" id="menu-member-${churchId}-${idx}">
                         <button onclick="openEditMemberModal('${churchId}', ${idx})">✏️ Editar Ficha</button>
-                        ${hasPic ? `<button class="del-btn" onclick="deleteFile('member_perfil', '${churchId}', 'perfil', 0, '', ${idx})">🗑️ Eliminar Foto Perfil</button>` : ''}
-                        <button class="del-btn" onclick="removeMember('${churchId}', ${idx})">🗑️ Eliminar Miembro</button>
+                        ${hasPic ? `<button class="del-btn" onclick="deleteFile('member_perfil', '${churchId}', 'perfil', 0, '', ${idx})">🗑️ Excluir Foto Perfil</button>` : ''}
+                        <button class="del-btn" onclick="removeMember('${churchId}', ${idx})">🗑️ Excluir Membro</button>
                     </div>
                 </div>
             </td>
@@ -1753,38 +1753,39 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
     function generateExpandedMembersHTML(id) {
         let c = db.find(x => x.id === id);
         if (c.miembros_list.length === 0) {
-            return `<div style="text-align:center; color:var(--text-muted); padding:20px;">No hay registros en esta sede. Usa el botón "Nuevo Registro".</div>`;
+            return `<div style="text-align:center; color:var(--text-muted); padding:20px;">Não há registros nesta sede. Use o botão "Novo Registro".</div>`;
         }
         
         let activos = []; let retirados = []; let fallecidos = [];
         c.miembros_list.forEach((m, idx) => {
-            if (m.situacion === 'Fallecido') fallecidos.push({m, idx});
-            else if (['Desligado', 'Expulsado/excluido'].includes(m.situacion)) retirados.push({m, idx});
+            let st = (m.situacion || '').toLowerCase();
+            if (st.includes('falecid') || st.includes('fallecid')) fallecidos.push({m, idx});
+            else if (st.includes('desligado') || st.includes('expulso') || st.includes('expulsado')) retirados.push({m, idx});
             else activos.push({m, idx});
         });
 
         let theadHTML = `<thead><tr>
-            <th style="text-align:center;">Perfil</th><th>ID & Datos</th><th>Contacto</th><th>Cargo & Ingreso</th><th>Estado y Detalles</th><th>Doc Físico</th><th><center>Acciones</center></th>
+            <th style="text-align:center;">Perfil</th><th>ID & Dados</th><th>Contato</th><th>Cargo & Ingresso</th><th>Estado e Detalhes</th><th>Doc Físico</th><th><center>Ações</center></th>
         </tr></thead>`;
 
         let html = "";
         
         if(activos.length > 0) {
-            html += `<div class="sub-table-title">📋 Padrón Activo y Regular (${activos.length})</div>`;
+            html += `<div class="sub-table-title">📋 Quadro Ativo e Regular (${activos.length})</div>`;
             html += `<table class="inner-table" style="overflow:visible;">${theadHTML}<tbody>`;
             activos.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
             html += `</tbody></table>`;
         }
 
         if(retirados.length > 0) {
-            html += `<div class="sub-table-title" style="color:var(--danger); margin-top:20px;">⚠️ Miembros Desligados o Excluidos (${retirados.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(No suman al total)</small></div>`;
+            html += `<div class="sub-table-title" style="color:var(--danger); margin-top:20px;">⚠️ Membros Desligados ou Excluídos (${retirados.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(Não somam ao total)</small></div>`;
             html += `<table class="inner-table" style="overflow:visible;">${theadHTML}<tbody>`;
             retirados.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
             html += `</tbody></table>`;
         }
 
         if(fallecidos.length > 0) {
-            html += `<div class="sub-table-title" style="color:var(--text-dark); margin-top:20px;">🖤 Registro de Fallecidos (${fallecidos.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(No suman al total)</small></div>`;
+            html += `<div class="sub-table-title" style="color:var(--text-dark); margin-top:20px;">🖤 Registro de Falecidos (${fallecidos.length}) <small style="margin-left:5px; font-weight:normal; font-size:10px;">(Não somam ao total)</small></div>`;
             html += `<table class="inner-table" style="opacity:0.8; overflow:visible;">${theadHTML}<tbody>`;
             fallecidos.forEach(item => html += buildMemberRowHTML(item.m, item.idx, id));
             html += `</tbody></table>`;
@@ -1837,22 +1838,22 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 inicioInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             }
             if(document.getElementById('edit-mem-idx').value === "") {
-                document.getElementById('new_mem_disc_tiempo').value = "1 mes";
+                document.getElementById('new_mem_disc_tiempo').value = "1 mês";
                 calcDisciplinaFin();
             }
         } else if (['Trasladado', 'Desligado', 'Expulsado/excluido', 'Fallecido'].includes(val)) {
             dFec.style.display = 'block';
-            if(val === 'Trasladado') lFec.innerText = 'Fecha de Traslado';
-            if(val === 'Desligado') lFec.innerText = 'Fecha de Retiro';
-            if(val === 'Expulsado/excluido') lFec.innerText = 'Fecha de Expulsión';
-            if(val === 'Fallecido') lFec.innerText = 'Fecha de Fallecimiento';
+            if(val === 'Transferido' || val === 'Trasladado') lFec.innerText = 'Data de Transferência';
+            if(val === 'Desligado') lFec.innerText = 'Data de Saída';
+            if(val === 'Expulso/excluído' || val === 'Expulsado/excluido') lFec.innerText = 'Data de Expulsão';
+            if(val === 'Falecido' || val === 'Fallecido') lFec.innerText = 'Data de Falecimento';
         }
     }
 
     function openAddMemberModal(churchId) {
         document.getElementById('new-mem-church-id').value = churchId;
         document.getElementById('edit-mem-idx').value = ""; 
-        document.getElementById('modal-member-title').innerText = "➕ Añadir Nuevo Registro Ministerial";
+        document.getElementById('modal-member-title').innerText = "➕ Adicionar Novo Registro Ministerial";
 
         document.getElementById('new_mem_nome').value = "";
         document.getElementById('new_mem_cpf').value = "";
@@ -1860,9 +1861,9 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         document.getElementById('new_mem_email').value = "";
         document.getElementById('new_mem_fecha').value = "";
         document.getElementById('new_mem_obs').value = "";
-        document.getElementById('new_mem_cargo').value = "Miembro";
+        document.getElementById('new_mem_cargo').value = "Membro";
         
-        document.getElementById('new_mem_situacion').value = "En comunión activo";
+        document.getElementById('new_mem_situacion').value = "Em comunhão ativo";
         document.getElementById('new_mem_disc_motivo').value = "";
         document.getElementById('new_mem_disc_pastor').value = "";
         document.getElementById('new_mem_disc_inicio').value = "";
@@ -1880,19 +1881,19 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         
         document.getElementById('new-mem-church-id').value = churchId;
         document.getElementById('edit-mem-idx').value = idx; 
-        document.getElementById('modal-member-title').innerText = "✏️ Editar Registro Ministerial / Membresía";
+        document.getElementById('modal-member-title').innerText = "✏️ Editar Registro Ministerial / Membresia";
         
         document.getElementById('new_mem_nome').value = m.nome || "";
         document.getElementById('new_mem_cpf').value = m.cpf || "";
         document.getElementById('new_mem_tel').value = m.tel || "";
         document.getElementById('new_mem_email').value = m.email || "";
-        document.getElementById('new_mem_cargo').value = m.cargo || "Miembro";
+        document.getElementById('new_mem_cargo').value = m.cargo || "Membro";
         document.getElementById('new_mem_fecha').value = m.fecha_ingreso || "";
         
-        document.getElementById('new_mem_situacion').value = m.situacion || "En comunión activo";
+        document.getElementById('new_mem_situacion').value = m.situacion || "Em comunhão ativo";
         document.getElementById('new_mem_disc_motivo').value = m.disciplina_motivo || "";
         document.getElementById('new_mem_disc_pastor').value = m.disciplina_pastor || "";
-        document.getElementById('new_mem_disc_tiempo').value = m.disciplina_tiempo || "1 mes";
+        document.getElementById('new_mem_disc_tiempo').value = m.disciplina_tiempo || "1 mês";
         document.getElementById('new_mem_disc_inicio').value = m.disciplina_inicio || "";
         document.getElementById('new_mem_disc_fin').value = m.disciplina_fin || "";
         
@@ -1909,7 +1910,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         let idx = document.getElementById('edit-mem-idx').value;
         let church = db.find(c => c.id === id);
         let nome = document.getElementById('new_mem_nome').value;
-        if (!nome) return alert("El nombre del miembro es obligatorio.");
+        if (!nome) return alert("O nome do membro é obrigatório.");
         
         let mData = {
             nome, cpf: document.getElementById('new_mem_cpf').value,
@@ -1978,7 +1979,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             document.getElementById(`content-members-${id}`).innerHTML = generateExpandedMembersHTML(id);
             renderAllTables();
             setSyncStatus('synced');
-            showToast('✅ Miembro guardado.', 'success');
+            showToast('✅ Membro salvo.', 'success');
         } catch(err) {
             setSyncStatus('error');
             showToast(`Error al guardar miembro: ${err.message}`, 'error');
@@ -1986,7 +1987,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
     }
 
     async function removeMember(churchId, idx) {
-        if (confirm("¿Borrar definitivamente este registro físico del sistema? Esta acción no se puede deshacer.")) {
+        if (confirm("Excluir definitivamente este registro do sistema? Esta ação não pode ser desfeita.")) {
             let church = db.find(c => c.id === churchId);
             let mem = church.miembros_list[idx];
             setSyncStatus('syncing');
@@ -1995,12 +1996,12 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                     const { error } = await _supabase.from('members').delete().eq('id', mem._supabase_id);
                     if (error) throw error;
                 }
-                await logHistory("Registro de Membresía", `Se eliminó definitivamente al miembro <b>${mem.nome}</b> (${mem.id_miembro}) perteneciente a la sede de ${church.ciudad}.`, churchId);
+                await logHistory("Registro de Membresia", `Foi excluído definitivamente o membro <b>${mem.nome}</b> (${mem.id_miembro}) pertencente à sede de ${church.ciudad}.`, churchId);
                 church.miembros_list.splice(idx, 1);
                 document.getElementById(`content-members-${churchId}`).innerHTML = generateExpandedMembersHTML(churchId);
                 renderAllTables();
                 setSyncStatus('synced');
-                showToast(`Miembro ${mem.nome} eliminado.`, 'warning');
+                showToast(`Membro ${mem.nome} excluído.`, 'warning');
             } catch(err) {
                 setSyncStatus('error');
                 showToast(`Error al eliminar miembro: ${err.message}`, 'error');
@@ -2190,8 +2191,8 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         let nTel     = document.getElementById('add_cel_pastor').value;
         let nId      = document.getElementById('add_id').value;
 
-        if (!nPais || !nEstado || !nCidade || !nId) return alert("País, Estado, Ciudad e ID son obligatorios.");
-        if (db.some(c => c.id === nId)) return alert(`El ID ${nId} ya existe.`);
+        if (!nPais || !nEstado || !nCidade || !nId) return alert("País, Estado, Cidade e ID são obrigatórios.");
+        if (db.some(c => c.id === nId)) return alert(`O ID ${nId} já existe.`);
 
         setSyncStatus('syncing');
         try {
@@ -2233,14 +2234,14 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             };
             db.push(newChurch);
 
-            await logHistory("Nueva Sede Registrada", `Se registró la nueva sede de <b>${nCidade}</b> con ID ${nId}.`, nId);
+            await logHistory("Nova Sede Registrada", `Foi registrada a nova sede de <b>${nCidade}</b> com ID ${nId}.`, nId);
             closeModal('add-church-modal');
             renderAllTables();
             setSyncStatus('synced');
-            showToast(`✅ Sede ${nCidade} (${nId}) registrada exitosamente.`, 'success');
+            showToast(`✅ Sede ${nCidade} (${nId}) registrada com sucesso.`, 'success');
         } catch(err) {
             setSyncStatus('error');
-            showToast(`Error al guardar: ${err.message}`, 'error');
+            showToast(`Erro ao salvar: ${err.message}`, 'error');
         }
     }
 
@@ -2252,49 +2253,49 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
         
         let html = '<div class="form-grid">';
         if(tab === 'iglesias') {
-            html += fSel('Status de la Sede', 'estatus_iglesia', church.estatus_iglesia, ['Abierta', 'Cerrada', 'Aberta', 'Fechada']);
+            html += fSel('Status da Sede', 'estatus_iglesia', church.estatus_iglesia, ['Aberta', 'Fechada']);
             html += fInp('País', 'pais', church.pais);
             html += fInp('Estado / Depto', 'estado', church.estado);
-            html += fInp('Ciudad', 'ciudad', church.ciudad);
-            html += fInp('Fecha de Apertura', 'fecha_apertura', church.fecha_apertura, 'date');
-            html += fInp('Fecha de Inauguración', 'fecha_inauguracion', church.fecha_inauguracion, 'date');
-            html += `<div class="form-group full"><label>Observación General (Iglesia)</label><textarea id="edit_obs_iglesia">${church.obs_iglesia||''}</textarea></div>`;
+            html += fInp('Cidade', 'ciudad', church.ciudad);
+            html += fInp('Data de Abertura', 'fecha_apertura', church.fecha_apertura, 'date');
+            html += fInp('Data de Inauguração', 'fecha_inauguracion', church.fecha_inauguracion, 'date');
+            html += `<div class="form-group full"><label>Observação Geral (Igreja)</label><textarea id="edit_obs_iglesia">${church.obs_iglesia||''}</textarea></div>`;
             html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
-            html += fInp('Nombre IPDD', 'nombre_iglesia', church.nombre_iglesia);
-            html += `<div class="form-group full"><label>Dirección Física</label><input type="text" id="edit_direccion" value="${church.direccion}"></div>`;
-            html += fInp('Días y Horarios Culto', 'dias_culto', church.dias_culto);
+            html += fInp('Nome IPDD', 'nombre_iglesia', church.nombre_iglesia);
+            html += `<div class="form-group full"><label>Endereço Físico</label><input type="text" id="edit_direccion" value="${church.direccion}"></div>`;
+            html += fInp('Dias e Horários de Culto', 'dias_culto', church.dias_culto);
             html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
-            html += fInp('1º Dirigente (Nombre)', 'dirigente1_nome', church.dirigente1_nome);
-            html += fInp('1º Dirigente (Teléfono)', 'dirigente1_tel', church.dirigente1_tel);
-            html += fInp('2º Dirigente (Nombre)', 'dirigente2_nome', church.dirigente2_nome);
-            html += fInp('2º Dirigente (Teléfono)', 'dirigente2_tel', church.dirigente2_tel);
+            html += fInp('1º Dirigente (Nome)', 'dirigente1_nome', church.dirigente1_nome);
+            html += fInp('1º Dirigente (Telefone)', 'dirigente1_tel', church.dirigente1_tel);
+            html += fInp('2º Dirigente (Nome)', 'dirigente2_nome', church.dirigente2_nome);
+            html += fInp('2º Dirigente (Telefone)', 'dirigente2_tel', church.dirigente2_tel);
             html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
-            html += fInp('1º Financiero (Nombre)', 'financiero1_nome', church.financiero1_nome);
-            html += fInp('1º Financiero (Teléfono)', 'financiero1_tel', church.financiero1_tel);
-            html += fInp('2º Financiero (Nombre)', 'financiero2_nome', church.financiero2_nome);
-            html += fInp('2º Financiero (Teléfono)', 'financiero2_tel', church.financiero2_tel);
+            html += fInp('1º Financeiro (Nome)', 'financiero1_nome', church.financiero1_nome);
+            html += fInp('1º Financeiro (Telefone)', 'financiero1_tel', church.financiero1_tel);
+            html += fInp('2º Financeiro (Nome)', 'financiero2_nome', church.financiero2_nome);
+            html += fInp('2º Financeiro (Telefone)', 'financiero2_tel', church.financiero2_tel);
         } else if(tab === 'contratos') {
-            html += fSel('Condición del Local', 'tipo_local', church.tipo_local || 'Alquilado', ['Propio', 'Prestado', 'Donado', 'Alquilado', 'Alugado']);
-            html += fInp('Titular del Contrato', 'contrato_titular', church.contrato_titular);
-            html += fInp('Fecha Inicio Alquiler', 'contrato_inicio', church.contrato_inicio, 'date');
-            html += fInp('Fecha Fin Alquiler', 'contrato_fin', church.contrato_fin, 'date');
-            html += `<div class="form-group"><label>Valor Mensual Alquiler</label><input type="text" id="edit_contrato_monto_mensual" value="${fmtMoney(church.contrato_monto_mensual)}" oninput="maskMoney(this)"></div>`;
-            html += `<div class="form-group full"><label>Observación del Contrato/Local</label><textarea id="edit_obs_contrato">${church.obs_contrato||''}</textarea></div>`;
+            html += fSel('Condição do Local', 'tipo_local', church.tipo_local || 'Alugado', ['Próprio', 'Cedido', 'Doação', 'Alugado']);
+            html += fInp('Titular do Contrato', 'contrato_titular', church.contrato_titular);
+            html += fInp('Data Início Aluguel', 'contrato_inicio', church.contrato_inicio, 'date');
+            html += fInp('Data Fim Aluguel', 'contrato_fin', church.contrato_fin, 'date');
+            html += `<div class="form-group"><label>Valor Mensal Aluguel</label><input type="text" id="edit_contrato_monto_mensual" value="${fmtMoney(church.contrato_monto_mensual)}" oninput="maskMoney(this)"></div>`;
+            html += `<div class="form-group full"><label>Observação do Contrato/Local</label><textarea id="edit_obs_contrato">${church.obs_contrato||''}</textarea></div>`;
             html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
-            html += `<h4 style="grid-column:1/-1; color:var(--primary); margin-bottom:5px;">Servicios Básicos (Registro de Titulares)</h4>`;
-            html += fInp('Titular de Agua', 'titular_agua', church.titular_agua);
+            html += `<h4 style="grid-column:1/-1; color:var(--primary); margin-bottom:5px;">Serviços Básicos (Registro de Titulares)</h4>`;
+            html += fInp('Titular de Água', 'titular_agua', church.titular_agua);
             html += fInp('Titular de Luz', 'titular_luz', church.titular_luz);
             html += fInp('Titular de Internet', 'titular_internet', church.titular_internet);
-            html += fInp('Titular de Teléfono', 'titular_telefono', church.titular_telefono);
+            html += fInp('Titular de Telefone', 'titular_telefono', church.titular_telefono);
             html += `<hr style="grid-column:1/-1; border:0; border-top:1px dashed #ccc;">`;
-            html += fInp('Inventario Resumido', 'inventario_bienes', church.inventario_bienes, 'text', true);
-            html += `<div class="form-group full"><label>Observación del Inventario</label><textarea id="edit_obs_inventario">${church.obs_inventario||''}</textarea></div>`;
+            html += fInp('Inventário Resumido', 'inventario_bienes', church.inventario_bienes, 'text', true);
+            html += `<div class="form-group full"><label>Observação do Inventário</label><textarea id="edit_obs_inventario">${church.obs_inventario||''}</textarea></div>`;
         } else if(tab === 'cofres') {
-            html += fInp('Guardián de la Llave (Nombre)', 'custodio_llave_nombre', m.custodio_llave_nombre);
-            html += fInp('Guardián de la Llave (Teléfono)', 'custodio_llave_tel', m.custodio_llave_tel);
-            html += fInp('Guardián de la Contraseña (Nombre)', 'custodio_pass_nombre', m.custodio_pass_nombre);
-            html += fInp('Guardián de la Contraseña (Teléfono)', 'custodio_pass_tel', m.custodio_pass_tel);
-            html += `<div class="form-group full"><label>Observación General del Cofre</label><textarea id="edit_obs_cofre">${m.obs_cofre||''}</textarea></div>`;
+            html += fInp('Guardião da Chave (Nome)', 'custodio_llave_nombre', m.custodio_llave_nombre);
+            html += fInp('Guardião da Chave (Telefone)', 'custodio_llave_tel', m.custodio_llave_tel);
+            html += fInp('Guardião da Senha (Nome)', 'custodio_pass_nombre', m.custodio_pass_nombre);
+            html += fInp('Guardião da Senha (Telefone)', 'custodio_pass_tel', m.custodio_pass_tel);
+            html += `<div class="form-group full"><label>Observação Geral do Cofre</label><textarea id="edit_obs_cofre">${m.obs_cofre||''}</textarea></div>`;
         }
         html += '</div>';
         
@@ -2395,7 +2396,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
             closeModal('editor-modal');
             renderAllTables();
             setSyncStatus('synced');
-            showToast('✅ Cambios guardados.', 'success');
+            showToast('✅ Alterações salvas.', 'success');
         } catch(err) {
             setSyncStatus('error');
             showToast(`Error al guardar: ${err.message}`, 'error');
@@ -2582,7 +2583,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 await _supabase.storage.from('ipdd-attachments').remove([fileObj.driveFileId]);
             }
 
-            await logHistory("Eliminación de Archivo", `Se eliminó un archivo (Doc/Foto) de tipo <b>${key}</b> en la sede de ${church.ciudad}.`, churchId);
+            await logHistory("Exclusão de Arquivo", `Foi excluído um arquivo (Doc/Foto) do tipo <b>${key}</b> na sede de ${church.ciudad}.`, churchId);
 
             if (type === 'base')          church.adjuntos_base[key].splice(fileIdx, 1);
             else if (type === 'mensual')  church.mensual[month][key].splice(fileIdx, 1);
@@ -2595,7 +2596,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 renderAllTables();
             }
             setSyncStatus('synced');
-            showToast('Archivo eliminado.', 'warning');
+            showToast('Arquivo excluído.', 'warning');
         } catch(err) {
             setSyncStatus('error');
             showToast(`Error al eliminar: ${err.message}`, 'error');
@@ -2610,7 +2611,7 @@ Puerto Maldonado - Perú,Puerto Maldonado,"Calle madre de dios",Lunes a Sabado 1
                 <div class="action-menu">
                     <button class="menu-dots" onclick="toggleMenu(event, 'menu-file-${delInfo.churchId}-${delInfo.key}-${i}')">⋮</button>
                     <div class="menu-dropdown" id="menu-file-${delInfo.churchId}-${delInfo.key}-${i}">
-                        <button class="del-btn" onclick="deleteFile('${delInfo.type}', '${delInfo.churchId}', '${delInfo.key}', ${i}, '${delInfo.month||''}', ${delInfo.memberIdx !== undefined ? delInfo.memberIdx : null})">🗑️ Eliminar Archivo</button>
+                        <button class="del-btn" onclick="deleteFile('${delInfo.type}', '${delInfo.churchId}', '${delInfo.key}', ${i}, '${delInfo.month||''}', ${delInfo.memberIdx !== undefined ? delInfo.memberIdx : null})">🗑️ Excluir Arquivo</button>
                     </div>
                 </div>
             </div>
